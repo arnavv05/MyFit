@@ -1,0 +1,151 @@
+_id,name,diet_type,kcal_per_100g,protein_g,carbs_g,fat_g,fiber_g,cuisine
+fd_001,Rolled Oats,veg,389.0,16.9,66.3,6.9,10.6,Global
+fd_002,Brown Rice (Cooked),veg,123.0,2.7,25.6,1.0,1.6,Global
+fd_003,White Basmati Rice (Cooked),veg,130.0,2.7,28.2,0.3,0.4,Indian
+fd_004,Whole Wheat Roti / Chapati,veg,264.0,9.0,55.0,2.5,9.0,Indian
+fd_005,Quinoa (Cooked),veg,120.0,4.4,21.3,1.9,2.8,Global
+fd_006,Moong Dal (Cooked),veg,105.0,7.3,18.0,0.4,4.2,Indian
+fd_007,Toor Dal / Arhar Dal (Cooked),veg,118.0,7.0,20.0,1.5,4.5,Indian
+fd_008,Masoor Dal (Cooked),veg,116.0,9.0,20.1,0.4,3.8,Indian
+fd_009,Chana Dal (Cooked),veg,130.0,8.4,22.0,1.8,5.0,Indian
+fd_010,Rajma / Kidney Beans Curry,veg,127.0,8.7,22.8,0.5,6.4,Indian
+fd_011,Chole / Chickpeas Masala,veg,164.0,8.9,27.4,2.6,7.6,Indian
+fd_012,Paneer (Fresh Raw),veg,265.0,18.3,1.2,20.8,0.0,Indian
+fd_013,Palak Paneer,veg,145.0,7.5,4.2,11.2,2.8,Indian
+fd_014,Matar Paneer,veg,160.0,8.0,9.5,10.0,3.2,Indian
+fd_015,Tofu (Firm),veg,144.0,17.3,2.8,8.7,2.3,Global
+fd_016,Plain Curd / Dahi,veg,61.0,3.5,4.7,3.3,0.0,Indian
+fd_017,Greek Yogurt (0% Fat),veg,59.0,10.0,3.6,0.4,0.0,Global
+fd_018,Cow Milk (Toned),veg,58.0,3.1,4.8,3.0,0.0,Indian
+fd_019,Soy Milk (Unsweetened),veg,33.0,3.3,1.8,1.6,0.6,Global
+fd_020,Soya Chunks (Dry),veg,345.0,52.0,33.0,0.5,13.0,Indian
+fd_021,Soya Chunks Curry,veg,135.0,14.5,11.0,3.5,4.2,Indian
+fd_022,Besan Chilla,veg,180.0,9.5,23.0,5.8,4.0,Indian
+fd_023,Moong Dal Cheela,veg,165.0,11.0,22.5,3.5,4.5,Indian
+fd_024,Steamed Idli (2 pieces ~100g),veg,132.0,3.9,28.0,0.4,1.4,Indian
+fd_025,Plain Dosa,veg,168.0,3.9,29.0,3.7,1.2,Indian
+fd_026,Vegetable Upma,veg,150.0,3.2,24.0,4.5,2.1,Indian
+fd_027,Poha (Flattened Rice with Veggies),veg,160.0,3.0,28.0,4.2,2.0,Indian
+fd_028,Boiled Egg White,nonveg,52.0,10.9,0.7,0.2,0.0,Global
+fd_029,Boiled Whole Egg,nonveg,155.0,12.6,1.1,10.6,0.0,Global
+fd_030,Egg Bhurji (Scrambled),nonveg,175.0,11.8,2.5,13.0,0.4,Indian
+fd_031,Egg Curry (2 Eggs with Gravy),nonveg,165.0,10.5,5.2,11.5,1.2,Indian
+fd_032,Omelette (2 Eggs with Veggies),nonveg,180.0,12.0,2.8,13.5,0.8,Global
+fd_033,Grilled Chicken Breast,nonveg,165.0,31.0,0.0,3.6,0.0,Global
+fd_034,Boiled Chicken Breast,nonveg,150.0,30.0,0.0,3.0,0.0,Global
+fd_035,Chicken Tikka,nonveg,185.0,26.0,3.5,7.2,0.8,Indian
+fd_036,Chicken Curry (Home-style),nonveg,170.0,18.0,4.0,9.5,1.0,Indian
+fd_037,Tandoori Chicken,nonveg,195.0,24.5,2.5,9.8,0.5,Indian
+fd_038,Chicken Biryani (Lean portion),nonveg,190.0,11.5,23.0,6.0,1.5,Indian
+fd_039,Grilled Salmon,nonveg,208.0,22.0,0.0,13.0,0.0,Global
+fd_040,Fish Curry (Rohu / Katla),nonveg,145.0,16.5,3.2,7.5,0.6,Indian
+fd_041,Steamed Fish Fillet,nonveg,110.0,21.0,0.0,2.5,0.0,Global
+fd_042,Canned Tuna in Water,nonveg,116.0,26.0,0.0,1.0,0.0,Global
+fd_043,Mutton Curry (Lean portion),nonveg,225.0,19.0,3.5,15.0,0.5,Indian
+fd_044,Prawns Masala,nonveg,130.0,18.0,4.0,4.5,0.8,Indian
+fd_045,Boiled Sweet Potato,veg,86.0,1.6,20.1,0.1,3.0,Global
+fd_046,Boiled White Potato,veg,87.0,1.9,20.0,0.1,1.8,Global
+fd_047,Aloo Gobi,veg,110.0,2.5,14.0,5.2,3.1,Indian
+fd_048,Bhindi Masala (Okra),veg,95.0,2.0,9.5,5.5,3.5,Indian
+fd_049,Baingan Bharta (Roasted Eggplant),veg,85.0,1.8,8.2,5.0,3.0,Indian
+fd_050,Palak / Spinach Saag,veg,65.0,3.2,5.0,3.8,3.2,Indian
+fd_051,Mix Vegetable Curry,veg,90.0,2.4,11.0,4.1,3.4,Indian
+fd_052,Raw Banana Curry,veg,105.0,1.5,22.0,1.8,3.2,Indian
+fd_053,Green Salad (Cucumber Tomato Onion),veg,25.0,1.0,4.5,0.2,1.5,Global
+fd_054,Cucumber Raita,veg,55.0,2.8,4.2,2.9,0.8,Indian
+fd_055,Boondi Raita,veg,95.0,3.0,8.5,5.5,0.6,Indian
+fd_056,Sambhar,veg,65.0,2.8,11.0,1.2,2.5,Indian
+fd_057,Rasam,veg,40.0,1.2,7.5,0.6,1.0,Indian
+fd_058,Sprouted Moong Salad,veg,105.0,7.0,19.0,0.5,4.0,Indian
+fd_059,Boiled Chickpea Salad,veg,140.0,7.5,22.0,2.5,6.0,Global
+fd_060,Boiled Sweet Corn,veg,96.0,3.4,21.0,1.5,2.4,Global
+fd_061,Apple,veg,52.0,0.3,13.8,0.2,2.4,Global
+fd_062,Banana,veg,89.0,1.1,22.8,0.3,2.6,Global
+fd_063,Papaya,veg,43.0,0.5,10.8,0.3,1.7,Indian
+fd_064,Guava,veg,68.0,2.6,14.3,1.0,5.4,Indian
+fd_065,Orange,veg,47.0,0.9,11.8,0.1,2.4,Global
+fd_066,Pomegranate Seeds,veg,83.0,1.7,18.7,1.2,4.0,Indian
+fd_067,Watermelon,veg,30.0,0.6,7.6,0.2,0.4,Global
+fd_068,Pineapple,veg,50.0,0.5,13.1,0.1,1.4,Global
+fd_069,Almonds (Raw),veg,579.0,21.2,21.6,49.9,12.5,Global
+fd_070,Walnuts,veg,654.0,15.2,13.7,65.2,6.7,Global
+fd_071,Peanuts (Roasted Unsalted),veg,585.0,24.0,21.0,49.0,8.0,Indian
+fd_072,Cashews,veg,553.0,18.2,30.2,43.8,3.3,Indian
+fd_073,Chia Seeds,veg,486.0,16.5,42.1,30.7,34.4,Global
+fd_074,Flax Seeds,veg,534.0,18.3,28.9,42.2,27.3,Global
+fd_075,Pumpkin Seeds,veg,559.0,30.2,10.7,49.1,6.0,Global
+fd_076,Peanut Butter (Unsweetened),veg,588.0,25.0,20.0,50.0,6.0,Global
+fd_077,Whey Protein Powder (Vanilla),veg,390.0,78.0,8.0,4.5,1.0,Global
+fd_078,Plant Protein Powder (Pea/Brown Rice),veg,380.0,74.0,9.0,5.0,3.5,Global
+fd_079,Brown Bread (2 slices ~60g),veg,250.0,9.0,46.0,3.0,6.0,Global
+fd_080,Multigrain Bread,veg,265.0,11.0,45.0,4.0,7.0,Global
+fd_081,Peanut Butter Toast (1 slice),veg,280.0,10.0,28.0,14.0,3.5,Global
+fd_082,Masala Buttermilk / Chaas,veg,35.0,2.0,3.0,1.5,0.0,Indian
+fd_083,Lassi (Sweetened),veg,110.0,3.2,18.0,2.8,0.0,Indian
+fd_084,Coconut Water (Fresh),veg,19.0,0.7,3.7,0.2,1.1,Indian
+fd_085,Green Tea (Unsweetened),veg,1.0,0.1,0.2,0.0,0.0,Global
+fd_086,Black Coffee,veg,2.0,0.3,0.2,0.0,0.0,Global
+fd_087,Masala Chai (with Milk & Sugar),veg,70.0,2.1,10.5,2.2,0.0,Indian
+fd_088,Lemon Mint Water (Sugar-free),veg,8.0,0.2,2.0,0.0,0.4,Global
+fd_089,Paneer Bhurji,veg,220.0,14.5,5.0,16.0,1.2,Indian
+fd_090,Dal Makhani,veg,180.0,6.5,18.5,9.2,4.0,Indian
+fd_091,Vegetable Khichdi,veg,135.0,4.5,24.0,2.5,2.8,Indian
+fd_092,Dal Tadka,veg,110.0,6.8,17.2,1.8,3.5,Indian
+fd_093,Methi Thepla (Gujarati),veg,260.0,7.5,45.0,6.5,5.5,Indian
+fd_094,Jowar Roti (Sorghum flatbread),veg,220.0,6.0,46.0,1.8,6.5,Indian
+fd_095,Bajra Roti (Pearl Millet flatbread),veg,230.0,7.0,48.0,2.2,7.0,Indian
+fd_096,Ragi Roti (Finger Millet),veg,215.0,5.5,47.0,1.5,8.0,Indian
+fd_097,Ragi Mudde,veg,160.0,3.8,35.0,1.0,5.5,Indian
+fd_098,Paneer Paratha (Home-style),veg,250.0,9.5,33.0,9.0,3.5,Indian
+fd_099,Aloo Paratha (Home-style),veg,240.0,5.0,38.0,8.0,3.2,Indian
+fd_100,Gobi Paratha,veg,210.0,5.5,35.0,6.0,4.0,Indian
+fd_101,Mushroom Matar Curry,veg,85.0,3.8,9.5,3.5,2.5,Indian
+fd_102,Grilled Portobello Mushroom,veg,35.0,3.0,4.5,0.5,1.5,Global
+fd_103,Broccoli Stir Fry,veg,55.0,3.5,6.5,2.0,3.0,Global
+fd_104,Steamed Edamame,veg,122.0,11.0,10.0,5.2,5.0,Global
+fd_105,Hummus,veg,166.0,7.9,14.3,9.6,6.0,Middle Eastern
+fd_106,Falafel (Baked),veg,240.0,9.5,31.0,8.5,6.5,Middle Eastern
+fd_107,Guacamole,veg,160.0,2.0,9.0,15.0,7.0,Mexican
+fd_108,Lentil Soup (Western style),veg,95.0,6.5,15.0,1.2,3.8,Global
+fd_109,Minestrone Soup,veg,65.0,2.8,11.0,1.2,2.0,Italian
+fd_110,Tomato Basil Soup,veg,50.0,1.5,8.5,1.2,1.5,Global
+fd_111,Clear Chicken Soup,nonveg,45.0,6.0,1.5,1.5,0.2,Global
+fd_112,Chicken Salad (Lettuce & Olive Oil),nonveg,140.0,18.0,2.5,6.5,1.2,Global
+fd_113,Tuna Salad,nonveg,135.0,19.0,2.0,5.5,0.8,Global
+fd_114,Grilled Turkey Breast,nonveg,135.0,30.0,0.0,1.0,0.0,Global
+fd_115,Chicken Seekh Kebab (Grilled),nonveg,190.0,21.0,4.0,10.0,0.8,Indian
+fd_116,Fish Tikka,nonveg,160.0,22.0,3.0,6.5,0.5,Indian
+fd_117,Shrimp Stir Fry with Veggies,nonveg,110.0,16.0,4.5,3.0,1.2,Asian
+fd_118,Egg Fried Rice (Lean),nonveg,165.0,6.5,27.0,3.8,1.2,Asian
+fd_119,Vegetable Fried Rice,veg,155.0,3.5,28.5,3.2,1.8,Asian
+fd_120,Veg Hakka Noodles,veg,175.0,4.2,32.0,3.5,2.0,Asian
+fd_121,Chicken Hakka Noodles,nonveg,195.0,10.5,30.0,4.2,1.6,Asian
+fd_122,Pad Thai Tofu,veg,210.0,8.0,32.0,6.0,2.5,Asian
+fd_123,Stir-Fried Tofu with Greens,veg,115.0,10.0,5.0,6.5,2.5,Asian
+fd_124,Avocado (Fresh),veg,160.0,2.0,8.5,14.7,6.7,Global
+fd_125,Dates (Medjool),veg,277.0,1.8,75.0,0.2,6.7,Middle Eastern
+fd_126,Raisins,veg,299.0,3.1,79.2,0.5,3.7,Global
+fd_127,Dark Chocolate (70%),veg,598.0,7.8,46.0,43.0,11.0,Global
+fd_128,Mixed Berries (Strawberries/Blueberries),veg,57.0,0.7,14.0,0.3,2.4,Global
+fd_129,Pomegranate Juice (Fresh),veg,54.0,0.2,13.1,0.1,0.2,Indian
+fd_130,Beetroot Salad,veg,43.0,1.6,9.6,0.2,2.8,Indian
+fd_131,Carrot Halwa (Low Sugar),veg,180.0,4.0,26.0,7.0,3.0,Indian
+fd_132,Kheer / Rice Pudding (Skimmed Milk),veg,140.0,4.2,24.0,3.0,0.5,Indian
+fd_133,Fruit Custard,veg,115.0,2.8,22.0,1.8,1.2,Indian
+fd_134,Vegetable Dalia / Broken Wheat Porridge,veg,110.0,3.8,21.0,1.5,3.8,Indian
+fd_135,Sweet Dalia with Milk,veg,135.0,4.5,25.0,2.2,2.5,Indian
+fd_136,Wheat Bran Cereal,veg,216.0,15.5,64.5,4.2,42.8,Global
+fd_137,Cottage Cheese (Low Fat),veg,98.0,11.1,3.4,4.3,0.0,Global
+fd_138,Makhana / Fox Nuts (Roasted),veg,350.0,9.7,77.0,0.1,7.6,Indian
+fd_139,Roasted Chana (Bengal Gram),veg,370.0,22.5,58.0,5.2,16.8,Indian
+fd_140,Sprouted Kala Chana,veg,150.0,9.5,24.0,2.0,7.2,Indian
+fd_141,Masala Oats,veg,145.0,4.5,25.0,3.2,3.5,Indian
+fd_142,Veggie Burger Patty (Soy + Veg),veg,180.0,12.0,18.0,7.0,4.5,Global
+fd_143,Chicken Burger Patty (Lean Grilled),nonveg,170.0,22.0,3.0,8.0,0.5,Global
+fd_144,Whole Grain Pasta (Cooked),veg,124.0,5.3,26.5,0.5,3.9,Italian
+fd_145,Chicken Pasta (Marinara),nonveg,160.0,14.0,21.0,3.0,2.0,Italian
+fd_146,Veggie Pasta (Pesto),veg,185.0,5.0,22.0,9.0,2.8,Italian
+fd_147,Stir Fry Paneer with Capsicum,veg,180.0,12.0,6.0,12.0,2.0,Indian
+fd_148,Grilled Tilapia,nonveg,128.0,26.0,0.0,2.7,0.0,Global
+fd_149,Hard Boiled Quail Eggs (5 pieces ~45g),nonveg,158.0,13.0,0.4,11.0,0.0,Global
+fd_150,Whey Protein Smoothie with Banana,veg,115.0,12.0,14.0,1.2,1.5,Global

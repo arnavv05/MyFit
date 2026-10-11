@@ -1,0 +1,3 @@
+diet_type,item_count,avg_kcal_100g,avg_protein_g,avg_carbs_g,avg_fat_g,avg_fiber_g
+nonveg,30,153.57,18.18,5.16,6.6,0.6
+veg,120,172.82,8.21,21.25,6.85,4.39

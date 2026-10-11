@@ -1,0 +1,61 @@
+_id,name,category,muscle_group,met_value,difficulty,equipment,injury_flags,item_id,interaction_count,average_rating
+ex_004,Stationary Cycling (Light),Cardio,Legs,4.0,beginner,stationary_bike,none,ex_004,478,3.62
+ex_053,Child's Pose,Mobility,Back,1.8,beginner,bodyweight,knee,ex_053,453,3.74
+ex_001,Brisk Walking,Cardio,Full Body,3.8,beginner,bodyweight,none,ex_001,451,3.65
+ex_051,Cat-Cow Stretch,Mobility,Back,2.0,beginner,bodyweight,none,ex_051,439,3.77
+ex_037,Glute Bridges,Strength,Glutes,3.5,beginner,bodyweight,none,ex_037,435,3.69
+ex_007,Swimming Freestyle,Cardio,Full Body,8.0,intermediate,pool,shoulder,ex_007,416,3.69
+ex_055,Hatha Yoga Flow,Mobility,Full Body,2.8,beginner,bodyweight,none,ex_055,408,3.66
+ex_016,Incline Dumbbell Press,Strength,Chest,5.0,intermediate,dumbbells,shoulder,ex_016,398,3.77
+ex_015,Knee Push-Up,Strength,Chest,3.0,beginner,bodyweight,wrist,ex_015,394,3.66
+ex_035,Dumbbell Romanian Deadlift,Strength,Legs,5.0,intermediate,dumbbells,back,ex_035,392,3.75
+ex_009,Elliptical Trainer,Cardio,Full Body,5.0,beginner,elliptical,none,ex_009,382,3.65
+ex_045,Plank Hold,Core,Core,3.5,beginner,bodyweight,back;shoulder,ex_045,378,3.73
+ex_026,Tricep Cable Pushdown,Strength,Arms,4.0,beginner,cable_machine,elbow,ex_026,374,3.67
+ex_008,Rowing Machine,Cardio,Full Body,7.0,intermediate,rowing_machine,back,ex_008,373,3.77
+ex_041,Pull-Ups,Strength,Back,6.0,advanced,pullup_bar,shoulder;elbow,ex_041,368,3.74
+ex_029,Barbell Back Squats,Strength,Legs,6.0,advanced,barbell,knee;back,ex_029,366,3.68
+ex_056,Vinyasa Dynamic Yoga,Mobility,Full Body,4.0,intermediate,bodyweight,wrist;shoulder,ex_056,365,3.75
+ex_023,Dumbbell Bicep Curls,Strength,Arms,3.5,beginner,dumbbells,wrist,ex_023,364,3.68
+ex_052,Cobra Stretch,Mobility,Back,2.0,beginner,bodyweight,back,ex_052,364,3.87
+ex_057,Foam Rolling Recovery,Mobility,Full Body,2.0,beginner,foam_roller,none,ex_057,363,3.72
+ex_024,Hammer Curls,Strength,Arms,3.5,beginner,dumbbells,wrist,ex_024,362,3.73
+ex_049,Russian Twists,Core,Core,4.0,intermediate,bodyweight,back,ex_049,361,3.68
+ex_038,Barbell Hip Thrust,Strength,Glutes,5.5,intermediate,barbell,back,ex_038,361,3.75
+ex_033,Leg Press,Strength,Legs,5.0,intermediate,machine,knee,ex_033,360,3.72
+ex_027,Skull Crushers,Strength,Arms,4.0,intermediate,dumbbells,elbow,ex_027,360,3.78
+ex_039,Calf Raises,Strength,Calves,3.0,beginner,bodyweight,ankle,ex_039,358,3.7
+ex_010,High Knees,Cardio,Legs,8.0,intermediate,bodyweight,knee;ankle,ex_010,358,3.71
+ex_032,Bulgarian Split Squat,Strength,Legs,5.5,intermediate,dumbbells,knee,ex_032,356,3.77
+ex_050,Bird Dog,Mobility,Core,2.5,beginner,bodyweight,none,ex_050,355,3.7
+ex_060,Box Jumps,HIIT,Legs,8.5,advanced,plyo_box,knee;ankle,ex_060,353,3.71
+ex_046,Side Plank,Core,Core,3.5,intermediate,bodyweight,shoulder,ex_046,352,3.73
+ex_034,Romanian Deadlift,Strength,Legs,6.0,intermediate,barbell,back;hamstring,ex_034,351,3.75
+ex_036,Conventional Deadlift,Strength,Full Body,6.5,advanced,barbell,back,ex_036,348,3.71
+ex_058,Kettlebell Swings,HIIT,Full Body,8.0,intermediate,kettlebell,back,ex_058,348,3.71
+ex_019,Dumbbell Shoulder Press,Strength,Shoulders,4.5,intermediate,dumbbells,shoulder,ex_019,346,3.72
+ex_059,Battle Ropes,HIIT,Full Body,9.0,advanced,battle_rope,shoulder,ex_059,343,3.72
+ex_005,Stationary Cycling (Moderate),Cardio,Legs,6.8,intermediate,stationary_bike,knee,ex_005,343,3.71
+ex_047,Bicycle Crunches,Core,Core,4.0,beginner,bodyweight,neck,ex_047,343,3.69
+ex_022,Front Dumbbell Raises,Strength,Shoulders,3.5,beginner,dumbbells,shoulder,ex_022,342,3.68
+ex_025,Tricep Dips (Chair),Strength,Arms,4.0,beginner,chair,shoulder;wrist,ex_025,340,3.69
+ex_028,Bodyweight Squats,Strength,Legs,5.0,beginner,bodyweight,knee,ex_028,339,3.68
+ex_030,Goblet Squat,Strength,Legs,5.5,intermediate,dumbbells,knee,ex_030,335,3.77
+ex_012,Mountain Climbers,Cardio,Core,8.0,intermediate,bodyweight,wrist;shoulder,ex_012,332,3.69
+ex_048,Hanging Leg Raises,Core,Core,5.0,advanced,pullup_bar,shoulder;back,ex_048,332,3.64
+ex_020,Barbell Overhead Press,Strength,Shoulders,5.5,advanced,barbell,shoulder;back,ex_020,329,3.74
+ex_040,Lat Pulldown,Strength,Back,4.5,beginner,cable_machine,shoulder,ex_040,324,3.73
+ex_054,Sun Salutation Yoga,Mobility,Full Body,3.3,beginner,bodyweight,wrist,ex_054,320,3.66
+ex_006,Jump Rope,Cardio,Full Body,10.0,intermediate,jump_rope,knee;ankle;back,ex_006,319,3.74
+ex_044,Seated Cable Row,Strength,Back,4.5,beginner,cable_machine,back,ex_044,314,3.71
+ex_043,Dumbbell Bent-Over Row,Strength,Back,5.0,intermediate,dumbbells,back,ex_043,313,3.76
+ex_017,Barbell Bench Press,Strength,Chest,5.5,intermediate,barbell,shoulder;wrist,ex_017,312,3.75
+ex_011,Jumping Jacks,Cardio,Full Body,7.5,beginner,bodyweight,knee;ankle,ex_011,312,3.68
+ex_021,Lateral Raises,Strength,Shoulders,3.5,beginner,dumbbells,shoulder,ex_021,309,3.74
+ex_003,Treadmill Running,Cardio,Legs,8.5,intermediate,treadmill,knee;ankle,ex_003,302,3.75
+ex_031,Walking Lunges,Strength,Legs,4.5,intermediate,bodyweight,knee,ex_031,294,3.77
+ex_014,Standard Push-Up,Strength,Chest,3.8,beginner,bodyweight,wrist;shoulder,ex_014,293,3.73
+ex_042,Chin-Ups,Strength,Back,6.0,advanced,pullup_bar,shoulder;elbow,ex_042,286,3.66
+ex_018,Dumbbell Chest Fly,Strength,Chest,4.0,intermediate,dumbbells,shoulder,ex_018,285,3.69
+ex_013,Burpees,Cardio,Full Body,8.5,advanced,bodyweight,knee;wrist;back,ex_013,285,3.9
+ex_002,Outdoor Jogging,Cardio,Legs,7.0,intermediate,bodyweight,knee;ankle,ex_002,264,3.61

@@ -1,0 +1,29 @@
+{
+  "n_clusters": 3,
+  "silhouette_score": 0.1763,
+  "feature_names": [
+    "age",
+    "bmi",
+    "activity_numeric",
+    "goal_delta",
+    "avg_sleep",
+    "avg_workout_min"
+  ],
+  "cluster_labels": {
+    "0": "Beginner Weight-Loss",
+    "1": "Muscle & Strength Gain",
+    "2": "Active Fat-Loss & Conditioning"
+  },
+  "inertias": {
+    "3": 5025.032900998867,
+    "4": 4622.80217177058,
+    "5": 4319.819454019085,
+    "6": 4068.7441995123686
+  },
+  "silhouettes": {
+    "3": 0.1762986739929703,
+    "4": 0.15184658631494313,
+    "5": 0.14466506077760916,
+    "6": 0.14523192328110965
+  }
+}
