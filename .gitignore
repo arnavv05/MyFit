@@ -1,7 +1,34 @@
+# Environment & secrets
+.env
+.env*.local
+!.env.example
+
+# Node dependencies & builds
+**/node_modules/
+**/dist/
+**/dist-ssr/
+npm-debug.log*
+
+# Python & testing
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+.coverage
+htmlcov/
+.venv/
+env/
+venv/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDEs
+.vscode/
+.idea/
 .ruff_cache/
 *.egg-info/
 dist/
