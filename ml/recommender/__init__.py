@@ -13,11 +13,13 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from recommender.anomaly import detect_daily_log_anomalies, detect_weight_anomalies
 from recommender.clustering import predict_cluster
 from recommender.config import MODEL_VERSION
 from recommender.data_access import BaseDataAccess, get_data_access
 from recommender.exercise_recs import recommend_exercises_for_user
 from recommender.food_recs import recommend_foods_for_user
+from recommender.forecast import forecast_goal_date
 
 # Public version string
 model_version: str = MODEL_VERSION
@@ -109,6 +111,9 @@ __all__ = [
     "ExerciseRecommendation",
     "FoodRecommendation",
     "MacroBreakdown",
+    "detect_daily_log_anomalies",
+    "detect_weight_anomalies",
+    "forecast_goal_date",
     "get_data_access",
     "get_exercise_recs",
     "get_food_recs",

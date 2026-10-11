@@ -84,3 +84,20 @@ Durations are bounded between 10 and 60 minutes, distributed across recommendati
 - **Python Package**: `recommender` (FastAPI backend ready)
 - **Persisted Models**: `ml/models/kmeans_user_clusters.joblib`, `ml/models/kmeans_scaler.joblib`, `ml/models/clustering_meta.json`
 - **EDA Aggregates**: Documented in `data/eda_aggregates/` for Member C's Streamlit dashboard.
+
+---
+
+## 6. Bonus Capabilities (Predictive & Safety Polish)
+
+### 6.1 Weight Goal Forecasting (`forecast.py`)
+- Employs regularized `Ridge` regression on chronological daily weight logs (`date` vs `weight_kg`) with an adaptive timeline estimator.
+- **Safety & Guardrails**:
+  - Requires at least 7 logged entries for statistical validity.
+  - Automatically flags flat trends or regressions moving away from the target (`expected_date=None`).
+  - Caps unrealistic timelines (>2 years / 730 days) to prevent misleading extrapolations.
+  - Compares projected date against user's `target_date` to output a boolean `on_track` signal.
+
+### 6.2 Anomaly & Scale Error Detection (`anomaly.py`)
+- **Weight Anomalies**: Detects implausible single-day weight jumps ($> 2.0$ kg in $\le 48$ hours) and statistical scale outliers via Median Absolute Deviation (MAD > 3.0).
+- **Daily Health Metrics**: Identifies extreme sleep durations ($< 3$h or $> 14$h) and hydration outliers ($< 400$ml or $> 6500$ml) to ensure logging integrity.
+

@@ -26,7 +26,9 @@ ml/
 │   ├── exercise_recs.py        # Item-CF + TruncatedSVD + injury safety hybrid
 │   ├── food_recs.py            # Macro-fit scoring + item-CF + hard veg filter
 │   ├── calories.py             # Compendium MET calorie calculations
-│   └── evaluation.py           # Precision@K, Recall@K, NDCG@K, time-based split
+│   ├── evaluation.py           # Precision@K, Recall@K, NDCG@K, time-based split
+│   ├── forecast.py             # Weight goal date forecasting (Ridge regression)
+│   └── anomaly.py              # Outlier detection (day-to-day jumps, MAD)
 ├── scripts/
 │   ├── generate_synthetic_data.py   # Deterministic synthetic data generator (seed 42)
 │   ├── train_all.py                 # Clustering model training pipeline
@@ -87,6 +89,15 @@ food_recs = get_food_recs(user_id="usr_0001", kcal_target=450.0, n=3)
 
 # Model version to log in recommendations collection:
 current_version = model_version
+
+# Optional Analytics Helpers (for GET /analytics/me):
+from recommender import forecast_goal_date, detect_weight_anomalies
+
+forecast = forecast_goal_date(user_id="usr_0001")
+# Returns: {"expected_date": "2026-11-15" | None, "days_remaining": 35 | None, "weekly_rate_kg": -0.6, "on_track": True, "message": "..."}
+
+anomalies = detect_weight_anomalies(user_id="usr_0001")
+# Returns: [{"date": "2026-09-09", "weight_kg": 75.2, "reason": "..."}]
 ```
 
 ### For Member C (Streamlit Dashboard)
