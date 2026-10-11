@@ -1,0 +1,15 @@
+{
+  "sleep_hours": {
+    "mean": 7.0,
+    "std": 0.9,
+    "q25": 6.4,
+    "q70": 7.5
+  },
+  "water_ml": {
+    "mean": 2404.9,
+    "std": 449.5,
+    "median": 2409.5
+  },
+  "calorie_balance_mean": -205.1,
+  "total_logs": 22218
+}

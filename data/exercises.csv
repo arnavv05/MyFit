@@ -1,0 +1,61 @@
+_id,name,category,muscle_group,met_value,difficulty,equipment,injury_flags
+ex_001,Brisk Walking,Cardio,Full Body,3.8,beginner,bodyweight,none
+ex_002,Outdoor Jogging,Cardio,Legs,7.0,intermediate,bodyweight,knee;ankle
+ex_003,Treadmill Running,Cardio,Legs,8.5,intermediate,treadmill,knee;ankle
+ex_004,Stationary Cycling (Light),Cardio,Legs,4.0,beginner,stationary_bike,none
+ex_005,Stationary Cycling (Moderate),Cardio,Legs,6.8,intermediate,stationary_bike,knee
+ex_006,Jump Rope,Cardio,Full Body,10.0,intermediate,jump_rope,knee;ankle;back
+ex_007,Swimming Freestyle,Cardio,Full Body,8.0,intermediate,pool,shoulder
+ex_008,Rowing Machine,Cardio,Full Body,7.0,intermediate,rowing_machine,back
+ex_009,Elliptical Trainer,Cardio,Full Body,5.0,beginner,elliptical,none
+ex_010,High Knees,Cardio,Legs,8.0,intermediate,bodyweight,knee;ankle
+ex_011,Jumping Jacks,Cardio,Full Body,7.5,beginner,bodyweight,knee;ankle
+ex_012,Mountain Climbers,Cardio,Core,8.0,intermediate,bodyweight,wrist;shoulder
+ex_013,Burpees,Cardio,Full Body,8.5,advanced,bodyweight,knee;wrist;back
+ex_014,Standard Push-Up,Strength,Chest,3.8,beginner,bodyweight,wrist;shoulder
+ex_015,Knee Push-Up,Strength,Chest,3.0,beginner,bodyweight,wrist
+ex_016,Incline Dumbbell Press,Strength,Chest,5.0,intermediate,dumbbells,shoulder
+ex_017,Barbell Bench Press,Strength,Chest,5.5,intermediate,barbell,shoulder;wrist
+ex_018,Dumbbell Chest Fly,Strength,Chest,4.0,intermediate,dumbbells,shoulder
+ex_019,Dumbbell Shoulder Press,Strength,Shoulders,4.5,intermediate,dumbbells,shoulder
+ex_020,Barbell Overhead Press,Strength,Shoulders,5.5,advanced,barbell,shoulder;back
+ex_021,Lateral Raises,Strength,Shoulders,3.5,beginner,dumbbells,shoulder
+ex_022,Front Dumbbell Raises,Strength,Shoulders,3.5,beginner,dumbbells,shoulder
+ex_023,Dumbbell Bicep Curls,Strength,Arms,3.5,beginner,dumbbells,wrist
+ex_024,Hammer Curls,Strength,Arms,3.5,beginner,dumbbells,wrist
+ex_025,Tricep Dips (Chair),Strength,Arms,4.0,beginner,chair,shoulder;wrist
+ex_026,Tricep Cable Pushdown,Strength,Arms,4.0,beginner,cable_machine,elbow
+ex_027,Skull Crushers,Strength,Arms,4.0,intermediate,dumbbells,elbow
+ex_028,Bodyweight Squats,Strength,Legs,5.0,beginner,bodyweight,knee
+ex_029,Barbell Back Squats,Strength,Legs,6.0,advanced,barbell,knee;back
+ex_030,Goblet Squat,Strength,Legs,5.5,intermediate,dumbbells,knee
+ex_031,Walking Lunges,Strength,Legs,4.5,intermediate,bodyweight,knee
+ex_032,Bulgarian Split Squat,Strength,Legs,5.5,intermediate,dumbbells,knee
+ex_033,Leg Press,Strength,Legs,5.0,intermediate,machine,knee
+ex_034,Romanian Deadlift,Strength,Legs,6.0,intermediate,barbell,back;hamstring
+ex_035,Dumbbell Romanian Deadlift,Strength,Legs,5.0,intermediate,dumbbells,back
+ex_036,Conventional Deadlift,Strength,Full Body,6.5,advanced,barbell,back
+ex_037,Glute Bridges,Strength,Glutes,3.5,beginner,bodyweight,none
+ex_038,Barbell Hip Thrust,Strength,Glutes,5.5,intermediate,barbell,back
+ex_039,Calf Raises,Strength,Calves,3.0,beginner,bodyweight,ankle
+ex_040,Lat Pulldown,Strength,Back,4.5,beginner,cable_machine,shoulder
+ex_041,Pull-Ups,Strength,Back,6.0,advanced,pullup_bar,shoulder;elbow
+ex_042,Chin-Ups,Strength,Back,6.0,advanced,pullup_bar,shoulder;elbow
+ex_043,Dumbbell Bent-Over Row,Strength,Back,5.0,intermediate,dumbbells,back
+ex_044,Seated Cable Row,Strength,Back,4.5,beginner,cable_machine,back
+ex_045,Plank Hold,Core,Core,3.5,beginner,bodyweight,back;shoulder
+ex_046,Side Plank,Core,Core,3.5,intermediate,bodyweight,shoulder
+ex_047,Bicycle Crunches,Core,Core,4.0,beginner,bodyweight,neck
+ex_048,Hanging Leg Raises,Core,Core,5.0,advanced,pullup_bar,shoulder;back
+ex_049,Russian Twists,Core,Core,4.0,intermediate,bodyweight,back
+ex_050,Bird Dog,Mobility,Core,2.5,beginner,bodyweight,none
+ex_051,Cat-Cow Stretch,Mobility,Back,2.0,beginner,bodyweight,none
+ex_052,Cobra Stretch,Mobility,Back,2.0,beginner,bodyweight,back
+ex_053,Child's Pose,Mobility,Back,1.8,beginner,bodyweight,knee
+ex_054,Sun Salutation Yoga,Mobility,Full Body,3.3,beginner,bodyweight,wrist
+ex_055,Hatha Yoga Flow,Mobility,Full Body,2.8,beginner,bodyweight,none
+ex_056,Vinyasa Dynamic Yoga,Mobility,Full Body,4.0,intermediate,bodyweight,wrist;shoulder
+ex_057,Foam Rolling Recovery,Mobility,Full Body,2.0,beginner,foam_roller,none
+ex_058,Kettlebell Swings,HIIT,Full Body,8.0,intermediate,kettlebell,back
+ex_059,Battle Ropes,HIIT,Full Body,9.0,advanced,battle_rope,shoulder
+ex_060,Box Jumps,HIIT,Legs,8.5,advanced,plyo_box,knee;ankle

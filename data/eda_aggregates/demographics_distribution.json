@@ -1,0 +1,30 @@
+{
+  "total_users": 1200,
+  "gender_ratio": {
+    "male": 619,
+    "female": 581
+  },
+  "diet_type_ratio": {
+    "nonveg": 638,
+    "veg": 562
+  },
+  "activity_level_ratio": {
+    "lightly_active": 461,
+    "sedentary": 407,
+    "moderately_active": 212,
+    "very_active": 120
+  },
+  "bmi_categories_pct": {
+    "normal": 42.0,
+    "overweight": 38.17,
+    "obese": 14.58,
+    "underweight": 5.25
+  },
+  "age_distribution": {
+    "mean": 29.7,
+    "median": 30.0,
+    "std": 7.5,
+    "min": 18,
+    "max": 59
+  }
+}
