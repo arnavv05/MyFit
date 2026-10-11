@@ -33,18 +33,24 @@ def export_aggregates() -> None:
 
     # 1. Demographics Distribution
     bmi_vals = users_df["weight_kg"] / ((users_df["height_cm"] / 100.0) ** 2)
-    bmi_categories = pd.cut(
-        bmi_vals,
-        bins=[0, 18.5, 24.9, 29.9, 100],
-        labels=["underweight", "normal", "overweight", "obese"],
-    ).value_counts(normalize=True).to_dict()
+    bmi_categories = (
+        pd.cut(
+            bmi_vals,
+            bins=[0, 18.5, 24.9, 29.9, 100],
+            labels=["underweight", "normal", "overweight", "obese"],
+        )
+        .value_counts(normalize=True)
+        .to_dict()
+    )
 
     demographics = {
         "total_users": len(users_df),
         "gender_ratio": users_df["gender"].value_counts().to_dict(),
         "diet_type_ratio": users_df["diet_type"].value_counts().to_dict(),
         "activity_level_ratio": users_df["activity_level"].value_counts().to_dict(),
-        "bmi_categories_pct": {k: round(float(v) * 100, 2) for k, v in bmi_categories.items()},
+        "bmi_categories_pct": {
+            k: round(float(v) * 100, 2) for k, v in bmi_categories.items()
+        },
         "age_distribution": {
             "mean": round(float(users_df["age"].mean()), 1),
             "median": round(float(users_df["age"].median()), 1),
@@ -54,7 +60,9 @@ def export_aggregates() -> None:
         },
     }
 
-    with open(OUTPUT_DIR / "demographics_distribution.json", "w", encoding="utf-8") as f:
+    with open(
+        OUTPUT_DIR / "demographics_distribution.json", "w", encoding="utf-8"
+    ) as f:
         json.dump(demographics, f, indent=2)
 
     # 2. Daily Log Correlations & Statistics
@@ -67,13 +75,19 @@ def export_aggregates() -> None:
     last_weights = logs_sorted.groupby("user_id")["weight_kg"].last()
     weight_changes = (last_weights - first_weights).rename("net_weight_change_kg")
 
-    user_means = logs_sorted.groupby("user_id").agg({
-        "sleep_hours": "mean",
-        "water_ml": "mean",
-        "calorie_balance": "mean",
-        "kcal_in": "mean",
-        "kcal_out": "mean",
-    }).join(weight_changes)
+    user_means = (
+        logs_sorted.groupby("user_id")
+        .agg(
+            {
+                "sleep_hours": "mean",
+                "water_ml": "mean",
+                "calorie_balance": "mean",
+                "kcal_in": "mean",
+                "kcal_out": "mean",
+            }
+        )
+        .join(weight_changes)
+    )
 
     corr_matrix = user_means.corr().round(4)
     corr_matrix.to_csv(OUTPUT_DIR / "correlations_matrix.csv")
@@ -99,26 +113,39 @@ def export_aggregates() -> None:
 
     # 3. Exercise Popularity & Category Aggregates
     ex_interactions = interactions_df[interactions_df["item_type"] == "exercise"]
-    ex_stats = ex_interactions.groupby("item_id").agg(
-        interaction_count=("rating", "count"),
-        average_rating=("rating", "mean"),
-    ).reset_index()
+    ex_stats = (
+        ex_interactions.groupby("item_id")
+        .agg(
+            interaction_count=("rating", "count"),
+            average_rating=("rating", "mean"),
+        )
+        .reset_index()
+    )
 
-    ex_summary = exercises_df.merge(ex_stats, left_on="_id", right_on="item_id", how="left")
-    ex_summary["interaction_count"] = ex_summary["interaction_count"].fillna(0).astype(int)
+    ex_summary = exercises_df.merge(
+        ex_stats, left_on="_id", right_on="item_id", how="left"
+    )
+    ex_summary["interaction_count"] = (
+        ex_summary["interaction_count"].fillna(0).astype(int)
+    )
     ex_summary["average_rating"] = ex_summary["average_rating"].fillna(0.0).round(2)
     ex_summary = ex_summary.sort_values(by="interaction_count", ascending=False)
     ex_summary.to_csv(OUTPUT_DIR / "exercise_popularity_summary.csv", index=False)
 
     # 4. Food Macro Distributions
-    food_summary = foods_df.groupby("diet_type").agg(
-        item_count=("_id", "count"),
-        avg_kcal_100g=("kcal_per_100g", "mean"),
-        avg_protein_g=("protein_g", "mean"),
-        avg_carbs_g=("carbs_g", "mean"),
-        avg_fat_g=("fat_g", "mean"),
-        avg_fiber_g=("fiber_g", "mean"),
-    ).round(2).reset_index()
+    food_summary = (
+        foods_df.groupby("diet_type")
+        .agg(
+            item_count=("_id", "count"),
+            avg_kcal_100g=("kcal_per_100g", "mean"),
+            avg_protein_g=("protein_g", "mean"),
+            avg_carbs_g=("carbs_g", "mean"),
+            avg_fat_g=("fat_g", "mean"),
+            avg_fiber_g=("fiber_g", "mean"),
+        )
+        .round(2)
+        .reset_index()
+    )
     food_summary.to_csv(OUTPUT_DIR / "food_macros_summary.csv", index=False)
 
     # 5. Write Documentation for Member C

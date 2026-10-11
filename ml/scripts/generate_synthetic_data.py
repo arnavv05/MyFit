@@ -30,6 +30,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 
 RANDOM_SEED = 42
 
+
 def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
     """Generate synthetic users, daily logs, and interactions."""
     random.seed(RANDOM_SEED)
@@ -47,15 +48,26 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
     exercise_injuries = {}
     exercise_met = {}
     for _, row in exercises_df.iterrows():
-        flags = [f.strip().lower() for f in str(row["injury_flags"]).split(";") if f.strip() and f.strip().lower() != "none"]
+        flags = [
+            f.strip().lower()
+            for f in str(row["injury_flags"]).split(";")
+            if f.strip() and f.strip().lower() != "none"
+        ]
         exercise_injuries[row["_id"]] = flags
         exercise_met[row["_id"]] = float(row["met_value"])
 
     # Food kcal map
-    food_kcal_per_100g = {row["_id"]: float(row["kcal_per_100g"]) for _, row in foods_df.iterrows()}
+    food_kcal_per_100g = {
+        row["_id"]: float(row["kcal_per_100g"]) for _, row in foods_df.iterrows()
+    }
 
     # Activity levels & factors
-    activity_levels = ["sedentary", "lightly_active", "moderately_active", "very_active"]
+    activity_levels = [
+        "sedentary",
+        "lightly_active",
+        "moderately_active",
+        "very_active",
+    ]
     injury_pool = ["knee", "shoulder", "back", "wrist", "ankle"]
 
     start_date = datetime(2026, 8, 1, tzinfo=timezone.utc)
@@ -93,11 +105,15 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
         # Injuries: 25% chance of 1-2 injuries
         user_injuries = []
         if random.random() < 0.25:
-            user_injuries = random.sample(injury_pool, k=1 if random.random() < 0.8 else 2)
+            user_injuries = random.sample(
+                injury_pool, k=1 if random.random() < 0.8 else 2
+            )
 
         # Goal weight
         # 60% want weight loss, 25% maintain, 15% muscle/weight gain
-        goal_type = random.choices(["loss", "maintain", "gain"], weights=[0.60, 0.25, 0.15])[0]
+        goal_type = random.choices(
+            ["loss", "maintain", "gain"], weights=[0.60, 0.25, 0.15]
+        )[0]
         if goal_type == "loss":
             target_weight = round(base_weight - random.uniform(3.0, 10.0), 1)
         elif goal_type == "gain":
@@ -118,7 +134,7 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
             "sedentary": 1.2,
             "lightly_active": 1.375,
             "moderately_active": 1.55,
-            "very_active": 1.725
+            "very_active": 1.725,
         }
         tdee = bmr * activity_multipliers[activity]
 
@@ -130,22 +146,24 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
         else:
             daily_target_balance = 0.0
 
-        users_records.append({
-            "_id": user_id,
-            "email": email,
-            "password_hash": "dummy_hash_for_test",
-            "age": age,
-            "gender": gender,
-            "height_cm": height_cm,
-            "weight_kg": base_weight,
-            "activity_level": activity,
-            "diet_type": diet_type,
-            "injuries": ";".join(user_injuries),
-            "target_weight_kg": target_weight,
-            "target_date": target_date,
-            "cluster_id": None,
-            "created_at": created_at
-        })
+        users_records.append(
+            {
+                "_id": user_id,
+                "email": email,
+                "password_hash": "dummy_hash_for_test",
+                "age": age,
+                "gender": gender,
+                "height_cm": height_cm,
+                "weight_kg": base_weight,
+                "activity_level": activity,
+                "diet_type": diet_type,
+                "injuries": ";".join(user_injuries),
+                "target_weight_kg": target_weight,
+                "target_date": target_date,
+                "cluster_id": None,
+                "created_at": created_at,
+            }
+        )
 
         # Generate Daily Logs & Interactions
         current_weight = base_weight
@@ -155,12 +173,18 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
         user_food_pool = veg_foods if diet_type == "veg" else (veg_foods + nonveg_foods)
 
         # Available exercises (preferred exercises that don't violate injuries)
-        safe_exercises = [ex_id for ex_id in all_exercise_ids if not any(inj in exercise_injuries[ex_id] for inj in user_injuries)]
+        safe_exercises = [
+            ex_id
+            for ex_id in all_exercise_ids
+            if not any(inj in exercise_injuries[ex_id] for inj in user_injuries)
+        ]
         if not safe_exercises:
             safe_exercises = all_exercise_ids
 
         # Track user's favorite items to simulate CF preferences
-        user_fav_exercises = random.sample(safe_exercises, k=min(4, len(safe_exercises)))
+        user_fav_exercises = random.sample(
+            safe_exercises, k=min(4, len(safe_exercises))
+        )
         user_fav_foods = random.sample(user_food_pool, k=min(8, len(user_food_pool)))
 
         for day_idx in range(num_logs):
@@ -177,37 +201,52 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
             balance_noise = np.random.normal(0, 150)
             actual_balance = daily_target_balance + balance_noise
             # Workout minutes
-            workout_prob = 0.85 if activity in ["moderately_active", "very_active"] else 0.55
-            did_workout = (random.random() < workout_prob)
+            workout_prob = (
+                0.85 if activity in ["moderately_active", "very_active"] else 0.55
+            )
+            did_workout = random.random() < workout_prob
 
             workout_burn = 0.0
             log_workouts = []
             if did_workout:
                 # pick 1-2 exercises
-                ex_chosen = random.sample(user_fav_exercises if random.random() < 0.75 else safe_exercises, k=random.choice([1, 2]))
+                ex_chosen = random.sample(
+                    user_fav_exercises if random.random() < 0.75 else safe_exercises,
+                    k=random.choice([1, 2]),
+                )
                 for ex_id in ex_chosen:
                     dur_min = random.choice([20, 30, 45, 60])
                     met = exercise_met.get(ex_id, 4.0)
                     kcal_burned = round(met * current_weight * (dur_min / 60.0), 1)
                     workout_burn += kcal_burned
-                    rating = random.choices([3, 4, 5, 2, 1], weights=[0.25, 0.45, 0.20, 0.07, 0.03])[0]
-                    log_workouts.append({
-                        "exercise_id": ex_id,
-                        "duration_min": dur_min,
-                        "kcal_burned": kcal_burned,
-                        "rating": rating
-                    })
+                    rating = random.choices(
+                        [3, 4, 5, 2, 1], weights=[0.25, 0.45, 0.20, 0.07, 0.03]
+                    )[0]
+                    log_workouts.append(
+                        {
+                            "exercise_id": ex_id,
+                            "duration_min": dur_min,
+                            "kcal_burned": kcal_burned,
+                            "rating": rating,
+                        }
+                    )
 
                     # Log interaction
-                    interactions_records.append({
-                        "_id": f"int_{interaction_id_counter:07d}",
-                        "user_id": user_id,
-                        "item_type": "exercise",
-                        "item_id": ex_id,
-                        "rating": rating,
-                        "implicit_score": round(min(1.0, dur_min / 60.0 * (rating / 5.0)), 2),
-                        "timestamp": (log_date + timedelta(hours=random.randint(6, 18))).isoformat()
-                    })
+                    interactions_records.append(
+                        {
+                            "_id": f"int_{interaction_id_counter:07d}",
+                            "user_id": user_id,
+                            "item_type": "exercise",
+                            "item_id": ex_id,
+                            "rating": rating,
+                            "implicit_score": round(
+                                min(1.0, dur_min / 60.0 * (rating / 5.0)), 2
+                            ),
+                            "timestamp": (
+                                log_date + timedelta(hours=random.randint(6, 18))
+                            ).isoformat(),
+                        }
+                    )
                     interaction_id_counter += 1
 
             kcal_out = round(tdee + workout_burn, 1)
@@ -215,28 +254,35 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
             kcal_in = max(1000.0, kcal_in)
 
             # Select 2-3 logged meals
-            meal_items = random.sample(user_fav_foods if random.random() < 0.75 else user_food_pool, k=random.choice([2, 3]))
+            meal_items = random.sample(
+                user_fav_foods if random.random() < 0.75 else user_food_pool,
+                k=random.choice([2, 3]),
+            )
             log_meals = []
             for fd_id in meal_items:
                 grams = float(random.choice([100, 150, 200, 250]))
-                fd_kcal = round(food_kcal_per_100g.get(fd_id, 120.0) * (grams / 100.0), 1)
-                log_meals.append({
-                    "food_id": fd_id,
-                    "grams": grams,
-                    "kcal": fd_kcal
-                })
+                fd_kcal = round(
+                    food_kcal_per_100g.get(fd_id, 120.0) * (grams / 100.0), 1
+                )
+                log_meals.append({"food_id": fd_id, "grams": grams, "kcal": fd_kcal})
 
                 # Food interaction
-                food_rating = random.choices([4, 5, 3, 2, 1], weights=[0.40, 0.35, 0.18, 0.05, 0.02])[0]
-                interactions_records.append({
-                    "_id": f"int_{interaction_id_counter:07d}",
-                    "user_id": user_id,
-                    "item_type": "food",
-                    "item_id": fd_id,
-                    "rating": food_rating,
-                    "implicit_score": round(food_rating / 5.0, 2),
-                    "timestamp": (log_date + timedelta(hours=random.randint(8, 21))).isoformat()
-                })
+                food_rating = random.choices(
+                    [4, 5, 3, 2, 1], weights=[0.40, 0.35, 0.18, 0.05, 0.02]
+                )[0]
+                interactions_records.append(
+                    {
+                        "_id": f"int_{interaction_id_counter:07d}",
+                        "user_id": user_id,
+                        "item_type": "food",
+                        "item_id": fd_id,
+                        "rating": food_rating,
+                        "implicit_score": round(food_rating / 5.0, 2),
+                        "timestamp": (
+                            log_date + timedelta(hours=random.randint(8, 21))
+                        ).isoformat(),
+                    }
+                )
                 interaction_id_counter += 1
 
             # Weight physics: 7700 kcal ~= 1 kg body mass
@@ -245,18 +291,20 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
             water_noise = np.random.normal(0, 0.1)
             current_weight = round(current_weight + weight_delta_kg + water_noise, 2)
 
-            daily_logs_records.append({
-                "_id": f"log_{log_id_counter:07d}",
-                "user_id": user_id,
-                "date": date_str,
-                "weight_kg": current_weight,
-                "sleep_hours": sleep_hours,
-                "water_ml": water_ml,
-                "workouts": json.dumps(log_workouts),
-                "meals": json.dumps(log_meals),
-                "kcal_in": kcal_in,
-                "kcal_out": kcal_out
-            })
+            daily_logs_records.append(
+                {
+                    "_id": f"log_{log_id_counter:07d}",
+                    "user_id": user_id,
+                    "date": date_str,
+                    "weight_kg": current_weight,
+                    "sleep_hours": sleep_hours,
+                    "water_ml": water_ml,
+                    "workouts": json.dumps(log_workouts),
+                    "meals": json.dumps(log_meals),
+                    "kcal_in": kcal_in,
+                    "kcal_out": kcal_out,
+                }
+            )
             log_id_counter += 1
 
     # Convert to DataFrames and save
@@ -271,7 +319,10 @@ def generate_datasets(num_users: int = 1200, days_history: int = 21) -> None:
     print("Datasets successfully generated:")
     print(f"- Users: {len(users_df)} rows ({DATA_DIR / 'users.csv'})")
     print(f"- Daily Logs: {len(daily_logs_df)} rows ({DATA_DIR / 'daily_logs.csv'})")
-    print(f"- Interactions: {len(interactions_df)} rows ({DATA_DIR / 'interactions.csv'})")
+    print(
+        f"- Interactions: {len(interactions_df)} rows ({DATA_DIR / 'interactions.csv'})"
+    )
+
 
 if __name__ == "__main__":
     generate_datasets()

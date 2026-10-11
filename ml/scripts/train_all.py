@@ -29,8 +29,12 @@ def run_training() -> None:
     users_df = pd.read_csv(USERS_CSV)
     logs_df = pd.read_csv(DAILY_LOGS_CSV) if DAILY_LOGS_CSV.exists() else None
 
-    print(f"Loaded {len(users_df)} users, {len(logs_df) if logs_df is not None else 0} daily logs.")
-    results = train_user_clusters(users_df=users_df, logs_df=logs_df, save_artifacts=True)
+    print(
+        f"Loaded {len(users_df)} users, {len(logs_df) if logs_df is not None else 0} daily logs."
+    )
+    results = train_user_clusters(
+        users_df=users_df, logs_df=logs_df, save_artifacts=True
+    )
 
     print("\nTraining complete! Results:")
     print(f"- Selected Clusters (k): {results['n_clusters']}")

@@ -10,7 +10,6 @@ Covers:
 7. CSV fallback without MongoDB.
 """
 
-
 from recommender import get_exercise_recs, get_food_recs, model_version
 from recommender.calories import allocate_exercise_durations, calculate_exercise_burn
 from recommender.clustering import predict_cluster
@@ -45,7 +44,9 @@ def test_duration_allocation_bounds():
         {"exercise_id": "ex_001", "name": "Brisk Walking", "met_value": 3.8},
         {"exercise_id": "ex_006", "name": "Jump Rope", "met_value": 10.0},
     ]
-    allocated = allocate_exercise_durations(sample_exercises, target_kcal_burn=300.0, weight_kg=70.0)
+    allocated = allocate_exercise_durations(
+        sample_exercises, target_kcal_burn=300.0, weight_kg=70.0
+    )
     assert len(allocated) == 2
     for item in allocated:
         assert 10 <= item["duration_min"] <= 60
@@ -79,11 +80,17 @@ def test_injury_filtering():
     # User with severe knee injury
     # Running, Jumping jacks, Burpees have knee flags
     users_df = da.get_all_users()
-    knee_users = users_df[users_df["injuries"].astype(str).str.contains("knee")]["_id"].head(5).tolist()
+    knee_users = (
+        users_df[users_df["injuries"].astype(str).str.contains("knee")]["_id"]
+        .head(5)
+        .tolist()
+    )
 
     knee_flagged_exercises = set()
     for _, row in exercises_df.iterrows():
-        flags = [f.strip().lower() for f in str(row["injury_flags"]).split(";") if f.strip()]
+        flags = [
+            f.strip().lower() for f in str(row["injury_flags"]).split(";") if f.strip()
+        ]
         if "knee" in flags:
             knee_flagged_exercises.add(str(row["_id"]))
 
@@ -109,7 +116,9 @@ def test_cold_start_new_user():
         assert "est_kcal" in ex
         assert "reason" in ex
 
-    food_recs = get_food_recs(user_id=unknown_user_id, kcal_target=350.0, n=3, data_access=da)
+    food_recs = get_food_recs(
+        user_id=unknown_user_id, kcal_target=350.0, n=3, data_access=da
+    )
     assert len(food_recs) == 3
     for fd in food_recs:
         assert "food_id" in fd
@@ -163,7 +172,13 @@ def test_api_contract_return_shapes():
     ex_recs = get_exercise_recs(user_id=test_user_id, n=4, data_access=da)
     assert len(ex_recs) == 4
     for item in ex_recs:
-        assert set(item.keys()) == {"exercise_id", "name", "duration_min", "est_kcal", "reason"}
+        assert set(item.keys()) == {
+            "exercise_id",
+            "name",
+            "duration_min",
+            "est_kcal",
+            "reason",
+        }
         assert isinstance(item["exercise_id"], str)
         assert isinstance(item["name"], str)
         assert isinstance(item["duration_min"], int)
@@ -171,14 +186,28 @@ def test_api_contract_return_shapes():
         assert isinstance(item["reason"], str)
 
     # 2. Foods shape: [{food_id, name, grams, kcal, macros, reason}]
-    food_recs = get_food_recs(user_id=test_user_id, kcal_target=500.0, n=3, data_access=da)
+    food_recs = get_food_recs(
+        user_id=test_user_id, kcal_target=500.0, n=3, data_access=da
+    )
     assert len(food_recs) == 3
     for item in food_recs:
-        assert set(item.keys()) == {"food_id", "name", "grams", "kcal", "macros", "reason"}
+        assert set(item.keys()) == {
+            "food_id",
+            "name",
+            "grams",
+            "kcal",
+            "macros",
+            "reason",
+        }
         assert isinstance(item["food_id"], str)
         assert isinstance(item["name"], str)
         assert isinstance(item["grams"], (float, int))
         assert isinstance(item["kcal"], (float, int))
         assert isinstance(item["macros"], dict)
-        assert set(item["macros"].keys()) == {"protein_g", "carbs_g", "fat_g", "fiber_g"}
+        assert set(item["macros"].keys()) == {
+            "protein_g",
+            "carbs_g",
+            "fat_g",
+            "fiber_g",
+        }
         assert isinstance(item["reason"], str)

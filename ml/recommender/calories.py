@@ -12,7 +12,9 @@ MAX_EXERCISE_DURATION_MIN = 60
 DEFAULT_USER_WEIGHT_KG = 70.0
 
 
-def calculate_exercise_burn(met_value: float, weight_kg: float, duration_min: int) -> float:
+def calculate_exercise_burn(
+    met_value: float, weight_kg: float, duration_min: int
+) -> float:
     """Calculate calories burned for a specific exercise and duration.
 
     Args:
@@ -64,7 +66,10 @@ def allocate_exercise_durations(
         # duration = (target_kcal * 60) / (MET * weight)
         raw_min = (kcal_per_ex * 60.0) / (met * safe_weight)
         # Sane bounds: between 10 and 60 minutes, round to nearest 5 minutes
-        bounded_min = max(MIN_EXERCISE_DURATION_MIN, min(MAX_EXERCISE_DURATION_MIN, round(raw_min / 5.0) * 5))
+        bounded_min = max(
+            MIN_EXERCISE_DURATION_MIN,
+            min(MAX_EXERCISE_DURATION_MIN, round(raw_min / 5.0) * 5),
+        )
         # Ensure at least MIN_EXERCISE_DURATION_MIN
         duration_min = max(MIN_EXERCISE_DURATION_MIN, int(bounded_min))
         est_kcal = calculate_exercise_burn(met, safe_weight, duration_min)

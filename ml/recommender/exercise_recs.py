@@ -95,9 +95,14 @@ class HybridExerciseRecommender:
         self._fitted = True
         return self
 
-    def _compute_item_cf_score(self, user_id: str, candidate_id: str, user_rated: dict[str, float]) -> tuple[float, str | None]:
+    def _compute_item_cf_score(
+        self, user_id: str, candidate_id: str, user_rated: dict[str, float]
+    ) -> tuple[float, str | None]:
         """Compute item-based CF predicted score and identify most similar rated anchor item."""
-        if self._item_sim_matrix is None or candidate_id not in self._item_sim_matrix.index:
+        if (
+            self._item_sim_matrix is None
+            or candidate_id not in self._item_sim_matrix.index
+        ):
             return 3.0, None
 
         sim_row = self._item_sim_matrix.loc[candidate_id]
@@ -139,7 +144,11 @@ class HybridExerciseRecommender:
         else:
             profile = user.get("profile", {})
             weight_kg = float(profile.get("weight_kg", 70.0))
-            injuries = [str(i).lower().strip() for i in profile.get("injuries", []) if str(i).strip()]
+            injuries = [
+                str(i).lower().strip()
+                for i in profile.get("injuries", [])
+                if str(i).strip()
+            ]
             logs = self.da.get_user_logs(user_id, limit=14)
             cluster_info = predict_cluster(user, logs)
             cluster_id = cluster_info["cluster_id"]
@@ -151,7 +160,11 @@ class HybridExerciseRecommender:
         # Injury Safety Filter
         def is_safe(row) -> bool:
             flags_str = str(row.get("injury_flags", ""))
-            flags = [f.strip().lower() for f in flags_str.split(";") if f.strip() and f.strip() != "none"]
+            flags = [
+                f.strip().lower()
+                for f in flags_str.split(";")
+                if f.strip() and f.strip() != "none"
+            ]
             return not any(inj in flags for inj in injuries)
 
         safe_df = self.exercises_df[self.exercises_df.apply(is_safe, axis=1)].copy()
@@ -161,10 +174,16 @@ class HybridExerciseRecommender:
         # Check user history
         user_history = pd.DataFrame()
         if not self.interactions_df.empty:
-            user_history = self.interactions_df[self.interactions_df["user_id"] == user_id]
+            user_history = self.interactions_df[
+                self.interactions_df["user_id"] == user_id
+            ]
 
         # COLD START: Fewer than 5 ratings -> return cluster-popular safe exercises
-        if len(user_history) < 5 or self._user_item_matrix is None or user_id not in self._user_item_matrix.index:
+        if (
+            len(user_history) < 5
+            or self._user_item_matrix is None
+            or user_id not in self._user_item_matrix.index
+        ):
             popular = get_popular_exercises(
                 data_access=self.da,
                 user_injuries=injuries,
@@ -177,13 +196,17 @@ class HybridExerciseRecommender:
                     if cluster_id is not None
                     else "Popular core workout safe for your activity level"
                 )
-                candidate_list.append({
-                    "exercise_id": str(item["_id"]),
-                    "name": str(item["name"]),
-                    "met_value": float(item["met_value"]),
-                    "reason": reason,
-                })
-            allocated = allocate_exercise_durations(candidate_list, target_burn_kcal, weight_kg)
+                candidate_list.append(
+                    {
+                        "exercise_id": str(item["_id"]),
+                        "name": str(item["name"]),
+                        "met_value": float(item["met_value"]),
+                        "reason": reason,
+                    }
+                )
+            allocated = allocate_exercise_durations(
+                candidate_list, target_burn_kcal, weight_kg
+            )
             return [
                 {
                     "exercise_id": a["exercise_id"],
@@ -213,18 +236,26 @@ class HybridExerciseRecommender:
             met_val = float(row["met_value"])
 
             # 1. Item-CF Score
-            item_cf_score, anchor_id = self._compute_item_cf_score(user_id, ex_id, user_ratings_map)
+            item_cf_score, anchor_id = self._compute_item_cf_score(
+                user_id, ex_id, user_ratings_map
+            )
 
             # 2. SVD Score
             svd_score = 3.0
-            if self._svd_preds_matrix is not None and user_id in self._svd_preds_matrix.index and ex_id in self._svd_preds_matrix.columns:
+            if (
+                self._svd_preds_matrix is not None
+                and user_id in self._svd_preds_matrix.index
+                and ex_id in self._svd_preds_matrix.columns
+            ):
                 svd_score = float(self._svd_preds_matrix.loc[user_id, ex_id])
 
             # 3. Base Popularity Prior (normalized 1.0 to 5.0)
             pop_score = float(row.get("met_value", 4.0)) / 2.0 + 1.5
 
             # Blended Hybrid Score: 45% Item-CF, 35% SVD, 20% Prior
-            hybrid_score = (0.45 * item_cf_score) + (0.35 * svd_score) + (0.20 * pop_score)
+            hybrid_score = (
+                (0.45 * item_cf_score) + (0.35 * svd_score) + (0.20 * pop_score)
+            )
 
             # Explainable reason formulation
             if anchor_id and anchor_id in name_map:
@@ -235,20 +266,24 @@ class HybridExerciseRecommender:
             else:
                 reason = "Highly rated by fitness members with a similar profile"
 
-            scored_candidates.append({
-                "exercise_id": ex_id,
-                "name": ex_name,
-                "met_value": met_val,
-                "hybrid_score": hybrid_score,
-                "reason": reason,
-            })
+            scored_candidates.append(
+                {
+                    "exercise_id": ex_id,
+                    "name": ex_name,
+                    "met_value": met_val,
+                    "hybrid_score": hybrid_score,
+                    "reason": reason,
+                }
+            )
 
         # Sort by hybrid score
         scored_candidates.sort(key=lambda x: x["hybrid_score"], reverse=True)
         top_n_candidates = scored_candidates[:n]
 
         # MET duration and calorie allocation
-        allocated = allocate_exercise_durations(top_n_candidates, target_burn_kcal, weight_kg)
+        allocated = allocate_exercise_durations(
+            top_n_candidates, target_burn_kcal, weight_kg
+        )
 
         final_recs = [
             {
@@ -281,4 +316,6 @@ def recommend_exercises_for_user(
         _exercise_engine = HybridExerciseRecommender(da)
         _exercise_engine.fit()
 
-    return _exercise_engine.recommend(user_id=user_id, n=n, target_burn_kcal=target_burn_kcal)
+    return _exercise_engine.recommend(
+        user_id=user_id, n=n, target_burn_kcal=target_burn_kcal
+    )

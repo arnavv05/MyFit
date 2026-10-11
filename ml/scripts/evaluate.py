@@ -58,9 +58,13 @@ def run_evaluation(k: int = 5) -> dict:
     print(f"Users with test ground truth items: {len(test_ground_truth)}")
 
     # 2. Build Popularity Baseline from Train Set
-    train_pop_counts = train_df.groupby("item_id")["rating"].agg(["count", "mean"]).reset_index()
+    train_pop_counts = (
+        train_df.groupby("item_id")["rating"].agg(["count", "mean"]).reset_index()
+    )
     train_pop_counts["score"] = train_pop_counts["count"] * train_pop_counts["mean"]
-    pop_ranked_ids = train_pop_counts.sort_values(by="score", ascending=False)["item_id"].tolist()
+    pop_ranked_ids = train_pop_counts.sort_values(by="score", ascending=False)[
+        "item_id"
+    ].tolist()
     pop_top_k = pop_ranked_ids[:k]
 
     # Evaluate Popularity Baseline
@@ -133,10 +137,16 @@ def run_evaluation(k: int = 5) -> dict:
     }
 
     print("\n=== Evaluation Results ===")
-    print(f"Popularity Baseline: Precision@{k}={pop_metrics[f'precision@{k}']:.4f}, Recall@{k}={pop_metrics[f'recall@{k}']:.4f}, NDCG@{k}={pop_metrics[f'ndcg@{k}']:.4f}")
-    print(f"Hybrid CF + SVD:     Precision@{k}={hybrid_metrics[f'precision@{k}']:.4f}, Recall@{k}={hybrid_metrics[f'recall@{k}']:.4f}, NDCG@{k}={hybrid_metrics[f'ndcg@{k}']:.4f}")
+    print(
+        f"Popularity Baseline: Precision@{k}={pop_metrics[f'precision@{k}']:.4f}, Recall@{k}={pop_metrics[f'recall@{k}']:.4f}, NDCG@{k}={pop_metrics[f'ndcg@{k}']:.4f}"
+    )
+    print(
+        f"Hybrid CF + SVD:     Precision@{k}={hybrid_metrics[f'precision@{k}']:.4f}, Recall@{k}={hybrid_metrics[f'recall@{k}']:.4f}, NDCG@{k}={hybrid_metrics[f'ndcg@{k}']:.4f}"
+    )
     if clustering_meta:
-        print(f"K-Means Clusters: k={clustering_meta.get('n_clusters')}, Silhouette Score={clustering_meta.get('silhouette_score')}")
+        print(
+            f"K-Means Clusters: k={clustering_meta.get('n_clusters')}, Silhouette Score={clustering_meta.get('silhouette_score')}"
+        )
 
     # 5. Write to docs/ml_report.md
     write_ml_report(results, k)
@@ -184,8 +194,8 @@ Each user profile is projected into a 6-dimensional feature vector:
 All features are normalized using `StandardScaler` to prevent high-variance features from dominating Euclidean distance.
 
 ### 2.2 Model Selection & Metrics
-- **Selected Clusters ($k$)**: `{clust.get('n_clusters', 3)}`
-- **Silhouette Score**: `{clust.get('silhouette_score', 0.1763):.4f}`
+- **Selected Clusters ($k$)**: `{clust.get("n_clusters", 3)}`
+- **Silhouette Score**: `{clust.get("silhouette_score", 0.1763):.4f}`
 
 ### 2.3 Identified Fitness Personas
 Centroid de-standardization maps the mathematical clusters into clear human personas:
@@ -208,8 +218,8 @@ Centroid de-standardization maps the mathematical clusters into clear human pers
 
 | Model Architecture | Precision@{k} | Recall@{k} | NDCG@{k} | Description |
 | :--- | :---: | :---: | :---: | :--- |
-| **Popularity Baseline** | `{pop[f'precision@{k}']:.4f}` | `{pop[f'recall@{k}']:.4f}` | `{pop[f'ndcg@{k}']:.4f}` | Top overall exercises by interaction count & rating |
-| **Hybrid (Item-CF + SVD + Prior)** | `{hyb[f'precision@{k}']:.4f}` | `{hyb[f'recall@{k}']:.4f}` | `{hyb[f'ndcg@{k}']:.4f}` | Personalized hybrid factoring similarities & latent features |
+| **Popularity Baseline** | `{pop[f"precision@{k}"]:.4f}` | `{pop[f"recall@{k}"]:.4f}` | `{pop[f"ndcg@{k}"]:.4f}` | Top overall exercises by interaction count & rating |
+| **Hybrid (Item-CF + SVD + Prior)** | `{hyb[f"precision@{k}"]:.4f}` | `{hyb[f"recall@{k}"]:.4f}` | `{hyb[f"ndcg@{k}"]:.4f}` | Personalized hybrid factoring similarities & latent features |
 
 ### 3.3 Honest Metric Interpretation & Trade-offs
 1. **Personalization vs. Popularity**: On synthetic interaction logs where popular exercises represent core staples (e.g., push-ups, jogging, brisk walking), the popularity baseline provides a competitive floor. However, the Hybrid model achieves higher user-level recall and personalization diversity by tailoring recommendations to specific past user favorites and cluster subgroups.

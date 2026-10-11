@@ -69,9 +69,14 @@ class HybridFoodRecommender:
         self._fitted = True
         return self
 
-    def _compute_item_cf_score(self, candidate_id: str, user_rated: dict[str, float]) -> tuple[float, str | None]:
+    def _compute_item_cf_score(
+        self, candidate_id: str, user_rated: dict[str, float]
+    ) -> tuple[float, str | None]:
         """Compute item-based CF score from items the user rated favorably."""
-        if self._item_sim_matrix is None or candidate_id not in self._item_sim_matrix.index:
+        if (
+            self._item_sim_matrix is None
+            or candidate_id not in self._item_sim_matrix.index
+        ):
             return 3.0, None
 
         sim_row = self._item_sim_matrix.loc[candidate_id]
@@ -113,7 +118,9 @@ class HybridFoodRecommender:
             profile = user.get("profile", {})
             diet_type = str(profile.get("diet_type", "veg")).lower()
             goal = user.get("goal", {})
-            target_weight = float(goal.get("target_weight_kg", profile.get("weight_kg", 70.0)))
+            target_weight = float(
+                goal.get("target_weight_kg", profile.get("weight_kg", 70.0))
+            )
             current_weight = float(profile.get("weight_kg", 70.0))
             if target_weight < current_weight:
                 goal_type = "loss"
@@ -147,7 +154,9 @@ class HybridFoodRecommender:
         # 4. User Interaction History & CF Scoring
         user_history = pd.DataFrame()
         if not self.interactions_df.empty:
-            user_history = self.interactions_df[self.interactions_df["user_id"] == user_id]
+            user_history = self.interactions_df[
+                self.interactions_df["user_id"] == user_id
+            ]
 
         user_rated_map = {}
         if not user_history.empty:
@@ -175,13 +184,15 @@ class HybridFoodRecommender:
             else:
                 reason = f"Wholesome {row['diet_type']} meal providing clean energy to hit your daily calorie target"
 
-            scored_candidates.append({
-                "food_id": f_id,
-                "name": str(row["name"]),
-                "row": row,
-                "score": combined_score,
-                "reason": reason,
-            })
+            scored_candidates.append(
+                {
+                    "food_id": f_id,
+                    "name": str(row["name"]),
+                    "row": row,
+                    "score": combined_score,
+                    "reason": reason,
+                }
+            )
 
         # Sort and pick top diverse candidates
         scored_candidates.sort(key=lambda x: x["score"], reverse=True)
@@ -213,14 +224,16 @@ class HybridFoodRecommender:
                 "fiber_g": round(fiber_100g * factor, 1),
             }
 
-            recs.append({
-                "food_id": str(item["food_id"]),
-                "name": str(item["name"]),
-                "grams": grams,
-                "kcal": item_kcal,
-                "macros": macros,
-                "reason": str(item["reason"]),
-            })
+            recs.append(
+                {
+                    "food_id": str(item["food_id"]),
+                    "name": str(item["name"]),
+                    "grams": grams,
+                    "kcal": item_kcal,
+                    "macros": macros,
+                    "reason": str(item["reason"]),
+                }
+            )
 
         return recs
 

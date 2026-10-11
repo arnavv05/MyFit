@@ -22,6 +22,7 @@ from recommender.config import (
 
 logger = logging.getLogger(__name__)
 
+
 class BaseDataAccess(ABC):
     """Abstract interface defining required data queries for the ML module."""
 
@@ -94,7 +95,11 @@ class CsvDataAccess(BaseDataAccess):
         if not self.daily_logs_file.exists():
             return []
         df = pd.read_csv(self.daily_logs_file)
-        user_df = df[df["user_id"] == user_id].sort_values("date", ascending=False).head(limit)
+        user_df = (
+            df[df["user_id"] == user_id]
+            .sort_values("date", ascending=False)
+            .head(limit)
+        )
         return user_df.to_dict(orient="records")
 
     def get_all_logs(self) -> pd.DataFrame:
@@ -114,7 +119,11 @@ class CsvDataAccess(BaseDataAccess):
     def _format_user_dict(row: dict[str, Any]) -> dict[str, Any]:
         """Convert flat CSV row to nested structure matching MongoDB schema."""
         injuries_val = str(row.get("injuries", ""))
-        injuries = [i.strip() for i in injuries_val.split(";") if i.strip() and i.strip() != "nan"]
+        injuries = [
+            i.strip()
+            for i in injuries_val.split(";")
+            if i.strip() and i.strip() != "nan"
+        ]
         return {
             "_id": str(row["_id"]),
             "email": row.get("email"),
@@ -128,10 +137,14 @@ class CsvDataAccess(BaseDataAccess):
                 "injuries": injuries,
             },
             "goal": {
-                "target_weight_kg": float(row.get("target_weight_kg", row["weight_kg"])),
+                "target_weight_kg": float(
+                    row.get("target_weight_kg", row["weight_kg"])
+                ),
                 "target_date": str(row.get("target_date", "")),
             },
-            "cluster_id": int(row["cluster_id"]) if pd.notna(row.get("cluster_id")) else None,
+            "cluster_id": int(row["cluster_id"])
+            if pd.notna(row.get("cluster_id"))
+            else None,
             "created_at": str(row.get("created_at", "")),
         }
 
@@ -148,10 +161,13 @@ class MongoDataAccess(BaseDataAccess):
         if self.uri:
             try:
                 from pymongo import MongoClient
+
                 self._client = MongoClient(self.uri, serverSelectionTimeoutMS=2000)
                 self._db = self._client[self.db_name]
             except Exception as e:  # noqa: BLE001
-                logger.warning(f"Failed to connect to MongoDB at {self.uri}: {e}. Fallback available.")
+                logger.warning(
+                    f"Failed to connect to MongoDB at {self.uri}: {e}. Fallback available."
+                )
 
     def _is_connected(self) -> bool:
         return self._db is not None
@@ -183,7 +199,9 @@ class MongoDataAccess(BaseDataAccess):
     def get_user_logs(self, user_id: str, limit: int = 30) -> list[dict[str, Any]]:
         if not self._is_connected():
             return CsvDataAccess().get_user_logs(user_id, limit)
-        cursor = self._db.daily_logs.find({"user_id": user_id}).sort("date", -1).limit(limit)
+        cursor = (
+            self._db.daily_logs.find({"user_id": user_id}).sort("date", -1).limit(limit)
+        )
         return list(cursor)
 
     def get_all_logs(self) -> pd.DataFrame:
@@ -200,7 +218,9 @@ class MongoDataAccess(BaseDataAccess):
         return pd.DataFrame(list(cursor))
 
 
-def get_data_access(uri: str | None = None, db_name: str | None = None) -> BaseDataAccess:
+def get_data_access(
+    uri: str | None = None, db_name: str | None = None
+) -> BaseDataAccess:
     """Factory function returning MongoDataAccess if configured, else CsvDataAccess."""
     target_uri = uri or os.getenv(MONGO_URI_ENV)
     if target_uri:

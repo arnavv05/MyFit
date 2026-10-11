@@ -15,7 +15,14 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-FEATURE_NAMES = ["age", "bmi", "activity_numeric", "goal_delta", "avg_sleep", "avg_workout_min"]
+FEATURE_NAMES = [
+    "age",
+    "bmi",
+    "activity_numeric",
+    "goal_delta",
+    "avg_sleep",
+    "avg_workout_min",
+]
 
 ACTIVITY_MAP = {
     "sedentary": 1.0,
@@ -30,10 +37,12 @@ def calculate_bmi(weight_kg: float, height_cm: float) -> float:
     if height_cm <= 0 or weight_kg <= 0:
         return 22.0
     height_m = height_cm / 100.0
-    return round(weight_kg / (height_m ** 2), 2)
+    return round(weight_kg / (height_m**2), 2)
 
 
-def extract_features_from_dict(user: dict[str, Any], logs: list[dict[str, Any]] | None = None) -> np.ndarray:
+def extract_features_from_dict(
+    user: dict[str, Any], logs: list[dict[str, Any]] | None = None
+) -> np.ndarray:
     """Extract 1D feature vector for a given user dictionary matching the MongoDB schema.
 
     Handles edge cases like missing fields and empty logs.
@@ -56,7 +65,11 @@ def extract_features_from_dict(user: dict[str, Any], logs: list[dict[str, Any]] 
     avg_workout_min = 0.0
 
     if logs and len(logs) > 0:
-        sleep_vals = [float(l.get("sleep_hours", 7.0)) for l in logs if "sleep_hours" in l and pd.notna(l["sleep_hours"])]
+        sleep_vals = [
+            float(l.get("sleep_hours", 7.0))
+            for l in logs
+            if "sleep_hours" in l and pd.notna(l["sleep_hours"])
+        ]
         if sleep_vals:
             avg_sleep = float(np.mean(sleep_vals))
 
@@ -69,15 +82,24 @@ def extract_features_from_dict(user: dict[str, Any], logs: list[dict[str, Any]] 
                 except (json.JSONDecodeError, TypeError, ValueError):
                     workouts_field = []
             if isinstance(workouts_field, list):
-                total_min = sum(float(w.get("duration_min", 0)) for w in workouts_field if isinstance(w, dict))
+                total_min = sum(
+                    float(w.get("duration_min", 0))
+                    for w in workouts_field
+                    if isinstance(w, dict)
+                )
                 workout_durations.append(total_min)
         if workout_durations:
             avg_workout_min = float(np.mean(workout_durations))
 
-    return np.array([age, bmi, activity_numeric, goal_delta, avg_sleep, avg_workout_min], dtype=float)
+    return np.array(
+        [age, bmi, activity_numeric, goal_delta, avg_sleep, avg_workout_min],
+        dtype=float,
+    )
 
 
-def build_feature_dataframe(users_df: pd.DataFrame, logs_df: pd.DataFrame | None = None) -> pd.DataFrame:
+def build_feature_dataframe(
+    users_df: pd.DataFrame, logs_df: pd.DataFrame | None = None
+) -> pd.DataFrame:
     """Build a complete feature matrix DataFrame from users and daily logs."""
     # Precompute per-user log aggregates if logs provided
     user_sleep_map = {}
@@ -98,12 +120,18 @@ def build_feature_dataframe(users_df: pd.DataFrame, logs_df: pd.DataFrame | None
                 except (json.JSONDecodeError, TypeError, ValueError):
                     return 0.0
             if isinstance(workouts_val, list):
-                return sum(float(w.get("duration_min", 0)) for w in workouts_val if isinstance(w, dict))
+                return sum(
+                    float(w.get("duration_min", 0))
+                    for w in workouts_val
+                    if isinstance(w, dict)
+                )
             return 0.0
 
         if "workouts" in logs_df.columns:
             temp_df = logs_df.copy()
-            temp_df["total_workout_min"] = temp_df["workouts"].apply(compute_row_workout_min)
+            temp_df["total_workout_min"] = temp_df["workouts"].apply(
+                compute_row_workout_min
+            )
             workout_grp = temp_df.groupby("user_id")["total_workout_min"].mean()
             user_workout_map = workout_grp.to_dict()
 
@@ -120,21 +148,27 @@ def build_feature_dataframe(users_df: pd.DataFrame, logs_df: pd.DataFrame | None
         activity_str = str(row.get("activity_level", "sedentary")).lower()
         activity_numeric = ACTIVITY_MAP.get(activity_str, 2.0)
 
-        target_weight = float(row.get("target_weight_kg", weight_kg)) if pd.notna(row.get("target_weight_kg")) else weight_kg
+        target_weight = (
+            float(row.get("target_weight_kg", weight_kg))
+            if pd.notna(row.get("target_weight_kg"))
+            else weight_kg
+        )
         goal_delta = target_weight - weight_kg
         bmi = calculate_bmi(weight_kg, height_cm)
 
         avg_sleep = user_sleep_map.get(uid, 7.0)
         avg_workout_min = user_workout_map.get(uid, 0.0)
 
-        feature_rows.append({
-            "user_id": uid,
-            "age": age,
-            "bmi": bmi,
-            "activity_numeric": activity_numeric,
-            "goal_delta": goal_delta,
-            "avg_sleep": avg_sleep,
-            "avg_workout_min": avg_workout_min,
-        })
+        feature_rows.append(
+            {
+                "user_id": uid,
+                "age": age,
+                "bmi": bmi,
+                "activity_numeric": activity_numeric,
+                "goal_delta": goal_delta,
+                "avg_sleep": avg_sleep,
+                "avg_workout_min": avg_workout_min,
+            }
+        )
 
     return pd.DataFrame(feature_rows)

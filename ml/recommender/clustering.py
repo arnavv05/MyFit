@@ -46,7 +46,9 @@ DEFAULT_CLUSTER_LABELS = {
 }
 
 
-def generate_cluster_labels(kmeans: KMeans, scaler: StandardScaler, feature_names: list[str]) -> dict[int, str]:
+def generate_cluster_labels(
+    kmeans: KMeans, scaler: StandardScaler, feature_names: list[str]
+) -> dict[int, str]:
     """Derive descriptive, plain-language persona labels based on unscaled cluster centroids."""
     centroids = scaler.inverse_transform(kmeans.cluster_centers_)
     labels = {}
@@ -128,7 +130,9 @@ def train_user_clusters(
         chosen_k = best_k
     else:
         chosen_k = n_clusters
-        km_temp = KMeans(n_clusters=chosen_k, random_state=RANDOM_SEED, n_init=10).fit(X_scaled)
+        km_temp = KMeans(n_clusters=chosen_k, random_state=RANDOM_SEED, n_init=10).fit(
+            X_scaled
+        )
         inertias = {chosen_k: float(km_temp.inertia_)}
         silhouettes = {chosen_k: float(silhouette_score(X_scaled, km_temp.labels_))}
 
@@ -176,7 +180,9 @@ class UserClusterPredictor:
             except (OSError, KeyError, ValueError) as e:
                 logger.warning(f"Could not load clustering artifacts: {e}")
 
-    def predict(self, user_dict: dict[str, Any], logs: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    def predict(
+        self, user_dict: dict[str, Any], logs: list[dict[str, Any]] | None = None
+    ) -> dict[str, Any]:
         """Predict cluster index and descriptive persona label for a user."""
         vec = extract_features_from_dict(user_dict, logs).reshape(1, -1)
         feat_dict = dict(zip(FEATURE_NAMES, vec[0].tolist()))
@@ -187,7 +193,9 @@ class UserClusterPredictor:
             cluster_id = 0 if goal_delta < 0 else 1
             return {
                 "cluster_id": cluster_id,
-                "cluster_label": DEFAULT_CLUSTER_LABELS.get(cluster_id, "Standard Member"),
+                "cluster_label": DEFAULT_CLUSTER_LABELS.get(
+                    cluster_id, "Standard Member"
+                ),
                 "features": feat_dict,
             }
 
@@ -195,7 +203,10 @@ class UserClusterPredictor:
         cluster_id = int(self.kmeans.predict(vec_scaled)[0])
 
         cluster_labels_map = self.meta.get("cluster_labels", {})
-        label = cluster_labels_map.get(str(cluster_id), DEFAULT_CLUSTER_LABELS.get(cluster_id, f"Cluster {cluster_id}"))
+        label = cluster_labels_map.get(
+            str(cluster_id),
+            DEFAULT_CLUSTER_LABELS.get(cluster_id, f"Cluster {cluster_id}"),
+        )
 
         return {
             "cluster_id": cluster_id,
@@ -207,7 +218,10 @@ class UserClusterPredictor:
 # Singleton instance
 _predictor_instance: UserClusterPredictor | None = None
 
-def predict_cluster(user_dict: dict[str, Any], logs: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+
+def predict_cluster(
+    user_dict: dict[str, Any], logs: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
     """Exposed public function to predict cluster persona for a user."""
     global _predictor_instance
     if _predictor_instance is None:

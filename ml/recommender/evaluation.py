@@ -12,7 +12,9 @@ import math
 import pandas as pd
 
 
-def compute_precision_at_k(recommended_ids: list[str], ground_truth_ids: set[str], k: int) -> float:
+def compute_precision_at_k(
+    recommended_ids: list[str], ground_truth_ids: set[str], k: int
+) -> float:
     """Compute Precision@K: proportion of recommended items in top-K that are relevant."""
     if k <= 0 or not ground_truth_ids:
         return 0.0
@@ -21,7 +23,9 @@ def compute_precision_at_k(recommended_ids: list[str], ground_truth_ids: set[str
     return float(hits / k)
 
 
-def compute_recall_at_k(recommended_ids: list[str], ground_truth_ids: set[str], k: int) -> float:
+def compute_recall_at_k(
+    recommended_ids: list[str], ground_truth_ids: set[str], k: int
+) -> float:
     """Compute Recall@K: proportion of relevant items captured in top-K recommendations."""
     if not ground_truth_ids or k <= 0:
         return 0.0
@@ -30,7 +34,9 @@ def compute_recall_at_k(recommended_ids: list[str], ground_truth_ids: set[str], 
     return float(hits / len(ground_truth_ids))
 
 
-def compute_ndcg_at_k(recommended_ids: list[str], ground_truth_ids: set[str], k: int) -> float:
+def compute_ndcg_at_k(
+    recommended_ids: list[str], ground_truth_ids: set[str], k: int
+) -> float:
     """Compute Normalized Discounted Cumulative Gain at K (NDCG@K)."""
     if not ground_truth_ids or k <= 0:
         return 0.0
