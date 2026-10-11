@@ -1,77 +1,99 @@
 # Myfitness ML & Recommender System Package (Member B)
 
-This package contains the ML engineering codebase for **Myfitness**:
-1. Exercise recommendations via collaborative filtering + K-Means cluster popularity + MET calorie burn calculation.
-2. Food recommendations via macro-fit scoring + strict dietary safety filtering (veg/nonveg).
-3. Data access abstraction supporting both MongoDB and offline CSV fallback.
+Production-ready machine learning package for **Myfitness**:
+1. **Hybrid Exercise Recommender**: Item-based Collaborative Filtering (cosine similarity) + Latent Factor Matrix Factorization (TruncatedSVD) blended with K-Means cluster popularity, injury safety filtering, and Compendium MET calorie burn allocation.
+2. **Food Recommender**: Item-based similarity + goal-specific macro-fit scoring with a **strict 100% vegetarian filter** (guaranteed in tests) and calorie-target portion scaling.
+3. **K-Means User Clustering**: Unsupervised persona clustering ($k=3$) over age, BMI, activity level, goal delta, average sleep, and workout volume.
+4. **Evaluation Pipeline**: Chronological time-split validation tracking Precision@K, Recall@K, and NDCG@K against popularity baselines.
+5. **EDA Aggregates**: Exported figures and statistics for Member C's Streamlit analytics dashboard.
 
 ---
 
-## 📁 Package Structure
+## 📁 Repository Layout
 
 ```
 ml/
-├── requirements.txt            # Pinned Python dependencies
-├── pyproject.toml              # Build & package config
-├── README.md                   # Setup and usage guide
+├── requirements.txt            # Pinned dependencies
+├── pyproject.toml              # Build & package config (pip install -e ml/)
+├── README.md                   # ML documentation & guide
 ├── recommender/                # Core ML package
 │   ├── __init__.py             # Exports get_exercise_recs, get_food_recs, model_version
 │   ├── config.py               # Paths, seeds, env vars, versioning
-│   ├── data_access.py          # MongoDataAccess + CsvDataAccess
-│   ├── features.py             # Feature engineering for user clustering
-│   ├── clustering.py           # KMeans clustering, silhouette tuning, cluster labels
+│   ├── data_access.py          # Unified BaseDataAccess (MongoDataAccess + CsvDataAccess)
+│   ├── features.py             # User feature engineering for clustering
+│   ├── clustering.py           # KMeans clustering, silhouette scoring, persona labeling
 │   ├── popularity.py           # Cold start & cluster popularity baselines
-│   ├── exercise_recs.py        # CF + safety filter + MET duration allocation
-│   ├── calories.py             # MET calorie calculations (Compendium of Physical Activities)
-│   └── food_recs.py            # Macro-fit scoring + hard veg filter
+│   ├── exercise_recs.py        # Item-CF + TruncatedSVD + injury safety hybrid
+│   ├── food_recs.py            # Macro-fit scoring + item-CF + hard veg filter
+│   ├── calories.py             # Compendium MET calorie calculations
+│   └── evaluation.py           # Precision@K, Recall@K, NDCG@K, time-based split
 ├── scripts/
 │   ├── generate_synthetic_data.py   # Deterministic synthetic data generator (seed 42)
-│   └── train_all.py                 # Clustering model training pipeline
-├── models/                     # Persisted model artifacts (.joblib, metadata)
+│   ├── train_all.py                 # Clustering model training pipeline
+│   ├── evaluate.py                  # Benchmark evaluation script (pop vs hybrid)
+│   └── export_eda_aggregates.py     # Exports aggregates for Member C's dashboard
+├── notebooks/
+│   └── 01_eda.ipynb                 # Clean EDA notebook (distributions, correlations, outliers)
+├── models/                          # Persisted model artifacts (.joblib, metadata JSON)
 └── tests/
-    └── test_recommender.py     # Pytest test suite
+    └── test_recommender.py          # Pytest test suite
 ```
 
 ---
 
-## 🚀 Quickstart & Installation
+## 🚀 Setup & Execution
 
-From the repository root:
+From the project root:
 
 ```bash
 # 1. Install dependencies
 pip install -r ml/requirements.txt
 
-# 2. Install recommender package in editable mode
+# 2. Install ML package in editable mode
 pip install -e ml/
 
-# 3. Generate synthetic data (if not already generated)
+# 3. Generate synthetic data (if starting from scratch)
 python ml/scripts/generate_synthetic_data.py
 
 # 4. Train KMeans user clustering model
 python ml/scripts/train_all.py
 
-# 5. Run test suite
+# 5. Run offline recommender evaluation (generates docs/ml_report.md)
+python ml/scripts/evaluate.py
+
+# 6. Export dashboard aggregates for Member C
+python ml/scripts/export_eda_aggregates.py
+
+# 7. Run test suite
 pytest ml/tests
 ```
 
 ---
 
-## 🤝 Shared API Contract (For Member A)
+## 🤝 Team Integration Contracts
 
-Member A's FastAPI backend imports and calls these functions directly:
-
+### For Member A (FastAPI Backend)
+Import and call the recommender functions directly:
 ```python
 from recommender import get_exercise_recs, get_food_recs, model_version
 
-# 1. Exercise recommendations
-# Returns: [{exercise_id: str, name: str, duration_min: int, est_kcal: float, reason: str}]
+# GET /api/v1/recommend/exercises?date=
 exercise_recs = get_exercise_recs(user_id="usr_0001", n=4)
+# Returns: [{exercise_id: str, name: str, duration_min: int, est_kcal: float, reason: str}]
 
-# 2. Food recommendations
-# Returns: [{food_id: str, name: str, grams: float, kcal: float, macros: {protein_g, carbs_g, fat_g, fiber_g}, reason: str}]
+# GET /api/v1/recommend/foods?date=
 food_recs = get_food_recs(user_id="usr_0001", kcal_target=450.0, n=3)
+# Returns: [{food_id: str, name: str, grams: float, kcal: float, macros: {protein_g, carbs_g, fat_g, fiber_g}, reason: str}]
 
-# 3. Model version tracking
-print(model_version)
+# Model version to log in recommendations collection:
+current_version = model_version
 ```
+
+### For Member C (Streamlit Dashboard)
+All precomputed aggregates are saved in `data/eda_aggregates/`:
+- `demographics_distribution.json` (user base breakdown, BMI classes, age distribution)
+- `correlations_matrix.csv` (correlation between weight changes, sleep, water, workouts, deficit)
+- `daily_metrics_summary.json` (daily sleep and hydration statistics)
+- `exercise_popularity_summary.csv` (exercise interaction frequencies and ratings)
+- `food_macros_summary.csv` (veg vs non-veg macro comparisons)
+See `data/eda_aggregates/README.md` for full documentation and code snippets.

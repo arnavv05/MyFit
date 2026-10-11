@@ -1,0 +1,7 @@
+,sleep_hours,water_ml,calorie_balance,kcal_in,kcal_out,net_weight_change_kg
+sleep_hours,1.0,0.0323,-0.0157,-0.0338,-0.0306,0.0018
+water_ml,0.0323,1.0,0.0424,-0.0225,-0.0514,0.0605
+calorie_balance,-0.0157,0.0424,1.0,0.5276,0.0316,0.8007
+kcal_in,-0.0338,-0.0225,0.5276,1.0,0.8657,0.433
+kcal_out,-0.0306,-0.0514,0.0316,0.8657,1.0,0.0376
+net_weight_change_kg,0.0018,0.0605,0.8007,0.433,0.0376,1.0
