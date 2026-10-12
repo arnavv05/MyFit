@@ -182,7 +182,16 @@ export const api = {
     getFoods: async (date) => {
       if (USE_MOCK) return mockHandlers.getFoodRecommendations(date)
       const qs = date ? `?date=${encodeURIComponent(date)}` : ''
-      return request(`/recommend/foods${qs}`, { method: 'GET' })
+      const recs = await request(`/recommend/foods${qs}`, { method: 'GET' })
+      // TODO: ask Member A to add diet_type to FoodRecItem schema.
+      // Until then, tag every rec with the user's own diet setting.
+      // Why: the Recommendations badge reads rec.diet_type to colour-code items.
+      let userDietType = null
+      try {
+        const me = await request('/users/me', { method: 'GET' })
+        userDietType = me?.profile?.diet_type ?? null
+      } catch { /* best-effort; badge just won't show if null */ }
+      return recs.map((r) => ({ ...r, diet_type: r.diet_type ?? userDietType }))
     },
   },
 
