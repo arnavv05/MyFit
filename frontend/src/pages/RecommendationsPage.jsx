@@ -174,7 +174,8 @@ export function RecommendationsPage() {
                             borderColor: currentRating >= star ? 'var(--status-warning)' : undefined,
                             background: currentRating >= star ? 'rgba(245, 158, 11, 0.2)' : undefined,
                           }}
-                          aria-label={`Rate ${star} stars`}
+                          aria-label={`Rate ${star} out of 5 stars`}
+                          aria-pressed={currentRating === star}
                         >
                           ⭐
                         </button>
@@ -305,7 +306,8 @@ export function RecommendationsPage() {
                             borderColor: currentRating >= star ? 'var(--status-warning)' : undefined,
                             background: currentRating >= star ? 'rgba(245, 158, 11, 0.2)' : undefined,
                           }}
-                          aria-label={`Rate ${star} stars`}
+                          aria-label={`Rate ${star} out of 5 stars`}
+                          aria-pressed={currentRating === star}
                         >
                           ⭐
                         </button>

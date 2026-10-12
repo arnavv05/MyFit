@@ -352,3 +352,49 @@ button:disabled {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* ==========================================================================
+   Mobile Responsiveness (≤767px / 375px)
+   Navbar collapses cleanly; tap targets meet 44px minimum.
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* Wrap brand + user section + nav-links into a column */
+  .navbar {
+    flex-wrap: wrap;
+    padding: 0.6rem 1rem;
+    gap: 0.25rem;
+  }
+
+  /* Nav links move to their own full-width row */
+  .navbar > nav {
+    order: 3;
+    width: 100%;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.4rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    width: 100%;
+  }
+
+  .nav-link {
+    font-size: 0.78rem;
+    padding: 0.55rem 0.6rem;
+    /* 44px tap target */
+    min-height: 2.75rem;
+  }
+
+  /* 44px tap target on all primary/secondary/outline buttons */
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    min-height: 2.75rem;
+  }
+
+  /* Ensure general button base also hits target */
+  button {
+    min-height: 2.75rem;
+  }
+}

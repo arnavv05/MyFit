@@ -175,6 +175,16 @@ export function DailyLogPage() {
         onClose={() => setStatusMsg({ type: '', text: '' })}
       />
 
+      {isLoading && (
+        <p
+          role="status"
+          aria-live="polite"
+          style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem 0', fontSize: '0.9rem' }}
+        >
+          Loading your log data…
+        </p>
+      )}
+
       {/* Backend Rollup Stat Cards */}
       <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
         <div className="card" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(17, 24, 39, 0.9))' }}>
@@ -357,6 +367,7 @@ export function DailyLogPage() {
                     className="btn-outline"
                     style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
                     onClick={() => handleRemoveWorkout(idx)}
+                    aria-label={`Remove ${w.name || w.exercise_id} from workouts`}
                   >
                     Remove
                   </button>
@@ -445,6 +456,7 @@ export function DailyLogPage() {
                     className="btn-outline"
                     style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
                     onClick={() => handleRemoveMeal(idx)}
+                    aria-label={`Remove ${m.name || m.food_id} from meals`}
                   >
                     Remove
                   </button>
