@@ -181,3 +181,79 @@ def create_daily_metrics_chart(data: dict) -> go.Figure:
         margin=dict(t=60, b=40, l=40, r=20),
     )
     return fig
+
+
+def create_weight_history_chart(weight_history: list[dict]) -> go.Figure:
+    """Create a line chart showing personal user weight progression over time."""
+    dates = [entry.get("date", "") for entry in weight_history]
+    weights = [entry.get("weight_kg", 0.0) for entry in weight_history]
+
+    fig = go.Figure(
+        data=[
+            go.Scatter(
+                x=dates,
+                y=weights,
+                mode="lines+markers",
+                name="Weight (kg)",
+                line=dict(color="#10b981", width=3),
+                marker=dict(size=8, color="#059669"),
+                hovertemplate="%{x}: %{y} kg<extra></extra>",
+            )
+        ]
+    )
+    fig.update_layout(
+        title="Weight History Progress",
+        xaxis_title="Date",
+        yaxis_title="Weight (kg)",
+        margin=dict(t=40, b=40, l=50, r=20),
+    )
+    return fig
+
+
+def create_user_calorie_balance_chart(kcal_in: float, kcal_out: float) -> go.Figure:
+    """Create a bar chart comparing user total caloric intake vs expenditure."""
+    fig = go.Figure(
+        data=[
+            go.Bar(
+                x=["Calorie Intake (In)", "Calorie Burned (Out)"],
+                y=[kcal_in, kcal_out],
+                marker=dict(color=["#f97316", "#3b82f6"]),
+                text=[f"{kcal_in:,.0f} kcal", f"{kcal_out:,.0f} kcal"],
+                textposition="auto",
+            )
+        ]
+    )
+    deficit = kcal_out - kcal_in
+    deficit_text = f"Net Deficit: {deficit:,.0f} kcal" if deficit >= 0 else f"Net Surplus: {-deficit:,.0f} kcal"
+    fig.update_layout(
+        title=f"Total Calorie Balance ({deficit_text})",
+        yaxis_title="Calories (kcal)",
+        margin=dict(t=40, b=40, l=40, r=20),
+    )
+    return fig
+
+
+def create_population_clusters_bar(clusters: list[dict]) -> go.Figure:
+    """Create a bar chart showing user counts across KMeans demographic clusters."""
+    names = [c.get("name", f"Cluster {c.get('cluster_id')}") for c in clusters]
+    counts = [c.get("user_count", 0) for c in clusters]
+
+    fig = go.Figure(
+        data=[
+            go.Bar(
+                x=names,
+                y=counts,
+                marker=dict(color="#8b5cf6"),
+                text=[f"{count} users" for count in counts],
+                textposition="auto",
+            )
+        ]
+    )
+    fig.update_layout(
+        title="Population Clusters Breakdown",
+        xaxis_title="Cluster Archetype",
+        yaxis_title="User Count",
+        margin=dict(t=40, b=40, l=40, r=20),
+    )
+    return fig
+
