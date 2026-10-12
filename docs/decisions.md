@@ -18,11 +18,11 @@ Base API Prefix: `/api/v1`
 
 ### 2.1 Authentication (`/auth`)
 - `POST /auth/register`
-  - **Request**: `{ "email": "user@example.com", "password": "securepassword" }`
-  - **Response**: `{ "access_token": "string", "token_type": "bearer", "user_id": "string" }`
+  - **Request**: `{ "email": "user@example.com", "password": "securepassword", "profile": {...}, "goal": {...} }`
+  - **Response**: `UserResponse` object (user only — **no token**). Frontend adapter immediately calls `POST /auth/login` to obtain a token.
 - `POST /auth/login`
   - **Request**: `{ "email": "user@example.com", "password": "securepassword" }`
-  - **Response**: `{ "access_token": "string", "token_type": "bearer", "user_id": "string" }`
+  - **Response**: `{ "access_token": "string", "token_type": "bearer" }` — no `user_id`.
 - **JWT Storage**: Stored in `localStorage` behind an auth helper service (`src/api/authStorage.js`) to allow seamless migration to httpOnly cookies if needed.
 
 ### 2.2 User Profile & Goals (`/users/me`)
@@ -36,7 +36,7 @@ Base API Prefix: `/api/v1`
         "gender": "male",
         "height_cm": 175,
         "weight_kg": 72.5,
-        "activity_level": "moderate",
+        "activity_level": "moderately_active",
         "diet_type": "veg",
         "injuries": ["knee"]
       },
@@ -46,6 +46,7 @@ Base API Prefix: `/api/v1`
       }
     }
     ```
+  - **Note**: `activity_level` values: `sedentary | lightly_active | moderately_active | very_active | extra_active`
 
 ### 2.3 Daily Logs (`/logs`)
 - `POST /logs` (Create or update today's log)
@@ -60,18 +61,21 @@ Base API Prefix: `/api/v1`
         {
           "exercise_id": "ex_101",
           "duration_min": 30,
+          "kcal_burned": 178,
           "rating": 4
         }
       ],
       "meals": [
         {
           "food_id": "fd_201",
-          "grams": 200
+          "grams": 200,
+          "kcal": 260
         }
       ]
     }
     ```
-  - **Response**: Full `daily_log` object with server-calculated `kcal_in` and `kcal_out`.
+  - **⚠ CORRECTION (was wrong in earlier version of this doc):** `kcal_burned` and `kcal` are **required** and must be computed by the **frontend** before POSTing. Formula: `kcal_burned = MET × weight_kg × (duration_min / 60)`; `kcal = kcal_per_100g × grams / 100`. The server only sums them — it does not compute them.
+  - **Response**: Full `daily_log` object with `kcal_in` (sum of meal kcal) and `kcal_out` (sum of workout kcal_burned).
 - `GET /logs?from=YYYY-MM-DD&to=YYYY-MM-DD`: Array of daily log records.
 
 ### 2.4 Recommendations (`/recommend`)

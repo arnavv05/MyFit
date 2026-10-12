@@ -23,6 +23,41 @@ export class ApiError extends Error {
 }
 
 /**
+ * Renames `_id` → `id` on a user object from the live backend.
+ * Why: MongoDB uses `_id`; we normalise once here so all pages use `user.id`.
+ * @param {object} raw
+ * @returns {object}
+ */
+function normalizeUser(raw) {
+  if (!raw) return raw
+  const { _id, ...rest } = raw
+  return { id: _id ?? rest.id, ...rest }
+}
+
+/**
+ * Pre-computes kcal_burned per workout and kcal per meal before sending to the backend.
+ * Why: backend requires these fields; it only sums them, it does not compute them.
+ * @param {object} logPayload - raw log from the UI
+ * @param {number} weightKg - user's current weight for MET formula
+ * @param {Array}  catalog  - array of {id, met_value} from the exercise catalog
+ * @returns {object} logPayload with kcal_burned and kcal filled in
+ */
+export function computeKcalForLog(logPayload, weightKg, catalog = []) {
+  const metMap = Object.fromEntries(catalog.map((e) => [e.id, e.met_value]))
+  const workouts = (logPayload.workouts || []).map((w) => ({
+    ...w,
+    // MET × weight_kg × hours = kcal; fall back to 5 kcal/min if MET unknown
+    kcal_burned: w.kcal_burned ?? Math.round((metMap[w.exercise_id] ?? 5) * weightKg * (w.duration_min / 60)),
+  }))
+  const meals = (logPayload.meals || []).map((m) => ({
+    ...m,
+    // kcal_per_100g × grams / 100; fall back to 2 kcal/g if catalog unknown
+    kcal: m.kcal ?? Math.round((m.kcal_per_100g ?? 200) * m.grams / 100),
+  }))
+  return { ...logPayload, workouts, meals }
+}
+
+/**
  * Handles HTTP requests with JWT authorization, error extraction, and 401 handling.
  * @param {string} endpoint - Relative path (e.g. '/users/me')
  * @param {RequestInit} [options] - Fetch options
@@ -83,11 +118,21 @@ export async function request(endpoint, options = {}) {
  */
 export const api = {
   auth: {
+    // Items 1 & 2: register needs {email,password,profile,goal}, returns user only.
+    // We immediately call login so the caller receives {access_token, token_type}.
     register: async (payload) => {
-      if (USE_MOCK) return mockHandlers.register(payload)
-      return request('/auth/register', {
+      if (USE_MOCK) {
+        await mockHandlers.register(payload) // mutates currentUser inside handler
+        // Auto-login: call mock login so caller gets a token
+        const token = await mockHandlers.login({ email: payload.email, password: payload.password })
+        authStorage.setToken(token.access_token)
+        return token
+      }
+      // Live: register (returns user), then login to get token
+      await request('/auth/register', { method: 'POST', body: JSON.stringify(payload) })
+      return request('/auth/login', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ email: payload.email, password: payload.password }),
       })
     },
     login: async (payload) => {
@@ -102,14 +147,11 @@ export const api = {
   users: {
     getMe: async () => {
       if (USE_MOCK) return mockHandlers.getMe()
-      return request('/users/me', { method: 'GET' })
+      return normalizeUser(await request('/users/me', { method: 'GET' })) // Item 3: _id → id
     },
     updateMe: async (payload) => {
       if (USE_MOCK) return mockHandlers.updateMe(payload)
-      return request('/users/me', {
-        method: 'PUT',
-        body: JSON.stringify(payload),
-      })
+      return normalizeUser(await request('/users/me', { method: 'PUT', body: JSON.stringify(payload) }))
     },
   },
 

@@ -11,7 +11,7 @@ export const mockUser = {
     gender: 'male',
     height_cm: 176,
     weight_kg: 73.5,
-    activity_level: 'moderate',
+    activity_level: 'moderately_active',
     diet_type: 'veg',
     injuries: ['Mild knee strain'],
   },
@@ -134,27 +134,20 @@ export const mockDailyLogs = [
 ]
 
 export const mockAnalyticsMe = {
-  streak_days: 4,
-  total_workouts: 12,
-  weight_change_kg: -0.8,
-  calorie_target: 2150,
+  // Shape matches GET /analytics/me — see backend all_schemas.py
+  total_days_logged: 6,
+  total_workouts_completed: 12,
+  total_kcal_in: 12150,
+  total_kcal_out: 13330,
   avg_sleep_hours: 7.6,
   avg_water_ml: 2750,
-  weight_trend: [
+  weight_history: [
     { date: '2026-10-06', weight_kg: 74.3 },
     { date: '2026-10-07', weight_kg: 74.1 },
     { date: '2026-10-08', weight_kg: 74.0 },
     { date: '2026-10-09', weight_kg: 74.0 },
     { date: '2026-10-10', weight_kg: 73.7 },
     { date: '2026-10-11', weight_kg: 73.5 },
-  ],
-  calories_trend: [
-    { date: '2026-10-06', kcal_in: 2100, kcal_out: 2200 },
-    { date: '2026-10-07', kcal_in: 2050, kcal_out: 2280 },
-    { date: '2026-10-08', kcal_in: 2120, kcal_out: 2190 },
-    { date: '2026-10-09', kcal_in: 1980, kcal_out: 2250 },
-    { date: '2026-10-10', kcal_in: 2050, kcal_out: 2310 },
-    { date: '2026-10-11', kcal_in: 1850, kcal_out: 2100 },
   ],
 }
 

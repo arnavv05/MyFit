@@ -14,6 +14,7 @@ import {
   mockAnalyticsMe,
   mockAnalyticsPopulation,
 } from './fixtures'
+import { ApiError } from '../api/client'
 
 // Mutable in-memory state for local testing
 let currentUser = { ...mockUser }
@@ -23,46 +24,39 @@ const ratingsState = []
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export const mockHandlers = {
-  // POST /auth/register
+  // POST /auth/register — returns user only (no token); caller must login separately
   register: async (payload) => {
     await delay()
     if (!payload.email || !payload.password) {
-      throw { status: 400, message: 'Email and password are required' }
+      throw new ApiError('Email and password are required', 400)
     }
     currentUser = {
       ...mockUser,
       id: `usr_${Date.now()}`,
       email: payload.email,
       profile: {
-        age: 0,
-        gender: 'other',
-        height_cm: 0,
-        weight_kg: 0,
-        activity_level: 'moderate',
-        diet_type: 'veg',
-        injuries: [],
+        age: payload.profile?.age ?? 0,
+        gender: payload.profile?.gender ?? 'other',
+        height_cm: payload.profile?.height_cm ?? 0,
+        weight_kg: payload.profile?.weight_kg ?? 0,
+        activity_level: payload.profile?.activity_level ?? 'moderately_active',
+        diet_type: payload.profile?.diet_type ?? 'veg',
+        injuries: payload.profile?.injuries ?? [],
       },
-      goal: { target_weight_kg: 0, target_date: '' },
+      goal: payload.goal ?? { target_weight_kg: 0, target_date: '' },
     }
-    return {
-      access_token: 'mock_jwt_token_' + Date.now(),
-      token_type: 'bearer',
-      user_id: currentUser.id,
-      user: currentUser,
-    }
+    return { ...currentUser }
   },
 
-  // POST /auth/login
+  // POST /auth/login — returns {access_token, token_type} only (no user_id)
   login: async (payload) => {
     await delay()
     if (!payload.email || !payload.password) {
-      throw { status: 400, message: 'Invalid credentials' }
+      throw new ApiError('Invalid credentials', 400)
     }
     return {
       access_token: 'mock_jwt_token_valid',
       token_type: 'bearer',
-      user_id: currentUser.id,
-      user: currentUser,
     }
   },
 
@@ -96,25 +90,20 @@ export const mockHandlers = {
     return filtered
   },
 
-  // POST /logs (create or update today's log)
+  // POST /logs — frontend must pre-compute kcal_burned and kcal before calling
   saveLog: async (logPayload) => {
     await delay()
     const existingIndex = logsState.findIndex((l) => l.date === logPayload.date)
 
-    // Calculate kcal_in and kcal_out as backend rollup simulation
-    let kcalIn = 0
-    if (Array.isArray(logPayload.meals)) {
-      kcalIn = logPayload.meals.reduce((sum, meal) => sum + (meal.kcal || (meal.grams ? Math.round(meal.grams * 1.5) : 0)), 0)
-    }
+    // Sum pre-computed values sent by the frontend (backend does the same)
+    const kcalIn = Array.isArray(logPayload.meals)
+      ? logPayload.meals.reduce((sum, meal) => sum + (meal.kcal || 0), 0)
+      : 0
 
-    let kcalOut = 1800 // base metabolic estimation
-    if (Array.isArray(logPayload.workouts)) {
-      const workoutBurn = logPayload.workouts.reduce(
-        (sum, w) => sum + (w.kcal_burned || (w.duration_min ? Math.round(w.duration_min * 5.5) : 0)),
-        0
-      )
-      kcalOut += workoutBurn
-    }
+    const workoutBurn = Array.isArray(logPayload.workouts)
+      ? logPayload.workouts.reduce((sum, w) => sum + (w.kcal_burned || 0), 0)
+      : 0
+    const kcalOut = workoutBurn // backend also just sums; TDEE is separate
 
     const savedRecord = {
       id: existingIndex >= 0 ? logsState[existingIndex].id : `log_${Date.now()}`,
