@@ -8,6 +8,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/tests/setup.js',
+    include: ['src/tests/**/*.test.{js,jsx}'],
     // Tests must never call a real backend (CI has no server and no .env file),
     // so force the API client into mock mode for every test run.
     env: { VITE_USE_MOCK: 'true' },

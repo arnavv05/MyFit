@@ -87,3 +87,20 @@ This checklist verifies the frontend user experience, accessibility, and integra
   - [ ] Alert banners have `role="alert"`.
 - [ ] **Mobile Viewport**:
   - [ ] Tested on 375px mobile viewport: navbar collapses cleanly, card grids collapse to 1 column, tap targets are minimum 44px.
+
+---
+
+## 7. Streamlit Analytics Dashboard (`/dashboard`)
+- [ ] **Navigation & View Modes**:
+  - [ ] Sidebar switches between "Population Analytics" and "My Personal Analytics".
+  - [ ] Displays live connection badge when backend is reachable, or offline fallback banner with aggregate data.
+- [ ] **Population View**:
+  - [ ] Demographic KPIs and donut charts (Gender, BMI, Activity levels) render from aggregate or live API.
+  - [ ] Correlation matrix heatmap renders correctly.
+  - [ ] Exercise popularity and Food macro bar charts render and update with sliders.
+  - [ ] ML KMeans population clusters display if provided by live backend.
+- [ ] **Personal View**:
+  - [ ] Allows entering bearer token in sidebar to query `/analytics/me`.
+  - [ ] Renders telemetry KPIs (days logged, workouts completed, sleep, hydration, net deficit).
+  - [ ] Renders interactive weight progression scatter/line chart and energy balance bar.
+
