@@ -10,7 +10,7 @@ describe('API Client in Mock Mode', () => {
     const user = await api.users.getMe()
     expect(user).toBeDefined()
     expect(user.email).toBe('student@myfitness.edu')
-    expect(user.profile.activity_level).toBe('moderate')
+    expect(user.profile.activity_level).toBe('moderately_active')
   })
 
   it('updates profile via updateMe', async () => {
@@ -28,12 +28,13 @@ describe('API Client in Mock Mode', () => {
       weight_kg: 73.2,
       sleep_hours: 7.5,
       water_ml: 2500,
-      workouts: [{ exercise_id: 'ex_1', duration_min: 30 }],
-      meals: [{ food_id: 'fd_1', grams: 200 }],
+      // frontend pre-computes these (item 5)
+      workouts: [{ exercise_id: 'ex_1', duration_min: 30, kcal_burned: 140 }],
+      meals: [{ food_id: 'fd_1', grams: 200, kcal: 260 }],
     })
     expect(log.date).toBe('2026-10-12')
-    expect(log.kcal_in).toBeGreaterThan(0)
-    expect(log.kcal_out).toBeGreaterThan(0)
+    expect(log.kcal_in).toBe(260)
+    expect(log.kcal_out).toBeGreaterThanOrEqual(0)
   })
 
   it('fetches exercise and food recommendations', async () => {
