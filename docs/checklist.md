@@ -78,15 +78,17 @@ This checklist verifies the frontend user experience, accessibility, and integra
 ---
 
 ## 6. Accessibility & Mobile Responsiveness
-- [ ] **Keyboard Navigation**:
-  - [ ] All interactive elements (inputs, buttons, tabs) are reachable via `Tab` key with visible focus rings.
-  - [ ] Dialogs and alerts can be closed using keyboard triggers.
-- [ ] **Screen Reader Support**:
-  - [ ] Form inputs have associated `<label>` elements with matching `htmlFor` / `id`.
-  - [ ] Veg/Non-veg badges have `role="status"` and descriptive `aria-label`.
-  - [ ] Alert banners have `role="alert"`.
-- [ ] **Mobile Viewport**:
-  - [ ] Tested on 375px mobile viewport: navbar collapses cleanly, card grids collapse to 1 column, tap targets are minimum 44px.
+- [x] **Keyboard Navigation**:
+  - [x] All interactive elements (inputs, buttons, tabs) are reachable via `Tab` key with visible focus rings.
+  - [x] Dialogs and alerts can be closed using keyboard triggers.
+- [x] **Screen Reader Support**:
+  - [x] Form inputs have associated `<label>` elements with matching `htmlFor` / `id`.
+  - [x] Veg/Non-veg badges have `role="status"` and descriptive `aria-label`.
+  - [x] Alert banners have `role="alert"` with correct `aria-live="assertive"` for errors.
+  - [x] Rating buttons have `aria-pressed` and descriptive `aria-label` ("Rate N out of 5 stars").
+  - [x] Remove buttons have contextual `aria-label` ("Remove [item name] from workouts/meals").
+- [x] **Mobile Viewport**:
+  - [x] Tested on 375px mobile viewport: navbar collapses cleanly (nav-links wrap to second row), card grids collapse to 1 column, tap targets minimum 44px (min-height: 2.75rem on all buttons).
 
 ---
 

@@ -24,7 +24,8 @@ export function Alert({ type = 'info', message, onClose }) {
   return (
     <div
       role={type === 'error' ? 'alert' : 'status'}
-      aria-live="polite"
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
+      aria-atomic="true"
       style={{
         display: 'flex',
         alignItems: 'center',
