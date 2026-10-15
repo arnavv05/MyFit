@@ -1,0 +1,727 @@
+[
+  {
+    "_id": "ex_001",
+    "name": "Brisk Walking",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 3.8,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_002",
+    "name": "Outdoor Jogging",
+    "category": "Cardio",
+    "muscle_group": "Legs",
+    "met_value": 7.0,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee",
+      "ankle"
+    ]
+  },
+  {
+    "_id": "ex_003",
+    "name": "Treadmill Running",
+    "category": "Cardio",
+    "muscle_group": "Legs",
+    "met_value": 8.5,
+    "difficulty": "intermediate",
+    "equipment": "treadmill",
+    "injury_flags": [
+      "knee",
+      "ankle"
+    ]
+  },
+  {
+    "_id": "ex_004",
+    "name": "Stationary Cycling (Light)",
+    "category": "Cardio",
+    "muscle_group": "Legs",
+    "met_value": 4.0,
+    "difficulty": "beginner",
+    "equipment": "stationary_bike",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_005",
+    "name": "Stationary Cycling (Moderate)",
+    "category": "Cardio",
+    "muscle_group": "Legs",
+    "met_value": 6.8,
+    "difficulty": "intermediate",
+    "equipment": "stationary_bike",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_006",
+    "name": "Jump Rope",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 10.0,
+    "difficulty": "intermediate",
+    "equipment": "jump_rope",
+    "injury_flags": [
+      "knee",
+      "ankle",
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_007",
+    "name": "Swimming Freestyle",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 8.0,
+    "difficulty": "intermediate",
+    "equipment": "pool",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_008",
+    "name": "Rowing Machine",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 7.0,
+    "difficulty": "intermediate",
+    "equipment": "rowing_machine",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_009",
+    "name": "Elliptical Trainer",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 5.0,
+    "difficulty": "beginner",
+    "equipment": "elliptical",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_010",
+    "name": "High Knees",
+    "category": "Cardio",
+    "muscle_group": "Legs",
+    "met_value": 8.0,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee",
+      "ankle"
+    ]
+  },
+  {
+    "_id": "ex_011",
+    "name": "Jumping Jacks",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 7.5,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee",
+      "ankle"
+    ]
+  },
+  {
+    "_id": "ex_012",
+    "name": "Mountain Climbers",
+    "category": "Cardio",
+    "muscle_group": "Core",
+    "met_value": 8.0,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "wrist",
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_013",
+    "name": "Burpees",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "met_value": 8.5,
+    "difficulty": "advanced",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee",
+      "wrist",
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_014",
+    "name": "Standard Push-Up",
+    "category": "Strength",
+    "muscle_group": "Chest",
+    "met_value": 3.8,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "wrist",
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_015",
+    "name": "Knee Push-Up",
+    "category": "Strength",
+    "muscle_group": "Chest",
+    "met_value": 3.0,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "wrist"
+    ]
+  },
+  {
+    "_id": "ex_016",
+    "name": "Incline Dumbbell Press",
+    "category": "Strength",
+    "muscle_group": "Chest",
+    "met_value": 5.0,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_017",
+    "name": "Barbell Bench Press",
+    "category": "Strength",
+    "muscle_group": "Chest",
+    "met_value": 5.5,
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "injury_flags": [
+      "shoulder",
+      "wrist"
+    ]
+  },
+  {
+    "_id": "ex_018",
+    "name": "Dumbbell Chest Fly",
+    "category": "Strength",
+    "muscle_group": "Chest",
+    "met_value": 4.0,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_019",
+    "name": "Dumbbell Shoulder Press",
+    "category": "Strength",
+    "muscle_group": "Shoulders",
+    "met_value": 4.5,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_020",
+    "name": "Barbell Overhead Press",
+    "category": "Strength",
+    "muscle_group": "Shoulders",
+    "met_value": 5.5,
+    "difficulty": "advanced",
+    "equipment": "barbell",
+    "injury_flags": [
+      "shoulder",
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_021",
+    "name": "Lateral Raises",
+    "category": "Strength",
+    "muscle_group": "Shoulders",
+    "met_value": 3.5,
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_022",
+    "name": "Front Dumbbell Raises",
+    "category": "Strength",
+    "muscle_group": "Shoulders",
+    "met_value": 3.5,
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_023",
+    "name": "Dumbbell Bicep Curls",
+    "category": "Strength",
+    "muscle_group": "Arms",
+    "met_value": 3.5,
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "wrist"
+    ]
+  },
+  {
+    "_id": "ex_024",
+    "name": "Hammer Curls",
+    "category": "Strength",
+    "muscle_group": "Arms",
+    "met_value": 3.5,
+    "difficulty": "beginner",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "wrist"
+    ]
+  },
+  {
+    "_id": "ex_025",
+    "name": "Tricep Dips (Chair)",
+    "category": "Strength",
+    "muscle_group": "Arms",
+    "met_value": 4.0,
+    "difficulty": "beginner",
+    "equipment": "chair",
+    "injury_flags": [
+      "shoulder",
+      "wrist"
+    ]
+  },
+  {
+    "_id": "ex_026",
+    "name": "Tricep Cable Pushdown",
+    "category": "Strength",
+    "muscle_group": "Arms",
+    "met_value": 4.0,
+    "difficulty": "beginner",
+    "equipment": "cable_machine",
+    "injury_flags": [
+      "elbow"
+    ]
+  },
+  {
+    "_id": "ex_027",
+    "name": "Skull Crushers",
+    "category": "Strength",
+    "muscle_group": "Arms",
+    "met_value": 4.0,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "elbow"
+    ]
+  },
+  {
+    "_id": "ex_028",
+    "name": "Bodyweight Squats",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 5.0,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_029",
+    "name": "Barbell Back Squats",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 6.0,
+    "difficulty": "advanced",
+    "equipment": "barbell",
+    "injury_flags": [
+      "knee",
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_030",
+    "name": "Goblet Squat",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 5.5,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_031",
+    "name": "Walking Lunges",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 4.5,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_032",
+    "name": "Bulgarian Split Squat",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 5.5,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_033",
+    "name": "Leg Press",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 5.0,
+    "difficulty": "intermediate",
+    "equipment": "machine",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_034",
+    "name": "Romanian Deadlift",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 6.0,
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "injury_flags": [
+      "back",
+      "hamstring"
+    ]
+  },
+  {
+    "_id": "ex_035",
+    "name": "Dumbbell Romanian Deadlift",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "met_value": 5.0,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_036",
+    "name": "Conventional Deadlift",
+    "category": "Strength",
+    "muscle_group": "Full Body",
+    "met_value": 6.5,
+    "difficulty": "advanced",
+    "equipment": "barbell",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_037",
+    "name": "Glute Bridges",
+    "category": "Strength",
+    "muscle_group": "Glutes",
+    "met_value": 3.5,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_038",
+    "name": "Barbell Hip Thrust",
+    "category": "Strength",
+    "muscle_group": "Glutes",
+    "met_value": 5.5,
+    "difficulty": "intermediate",
+    "equipment": "barbell",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_039",
+    "name": "Calf Raises",
+    "category": "Strength",
+    "muscle_group": "Calves",
+    "met_value": 3.0,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "ankle"
+    ]
+  },
+  {
+    "_id": "ex_040",
+    "name": "Lat Pulldown",
+    "category": "Strength",
+    "muscle_group": "Back",
+    "met_value": 4.5,
+    "difficulty": "beginner",
+    "equipment": "cable_machine",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_041",
+    "name": "Pull-Ups",
+    "category": "Strength",
+    "muscle_group": "Back",
+    "met_value": 6.0,
+    "difficulty": "advanced",
+    "equipment": "pullup_bar",
+    "injury_flags": [
+      "shoulder",
+      "elbow"
+    ]
+  },
+  {
+    "_id": "ex_042",
+    "name": "Chin-Ups",
+    "category": "Strength",
+    "muscle_group": "Back",
+    "met_value": 6.0,
+    "difficulty": "advanced",
+    "equipment": "pullup_bar",
+    "injury_flags": [
+      "shoulder",
+      "elbow"
+    ]
+  },
+  {
+    "_id": "ex_043",
+    "name": "Dumbbell Bent-Over Row",
+    "category": "Strength",
+    "muscle_group": "Back",
+    "met_value": 5.0,
+    "difficulty": "intermediate",
+    "equipment": "dumbbells",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_044",
+    "name": "Seated Cable Row",
+    "category": "Strength",
+    "muscle_group": "Back",
+    "met_value": 4.5,
+    "difficulty": "beginner",
+    "equipment": "cable_machine",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_045",
+    "name": "Plank Hold",
+    "category": "Core",
+    "muscle_group": "Core",
+    "met_value": 3.5,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "back",
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_046",
+    "name": "Side Plank",
+    "category": "Core",
+    "muscle_group": "Core",
+    "met_value": 3.5,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_047",
+    "name": "Bicycle Crunches",
+    "category": "Core",
+    "muscle_group": "Core",
+    "met_value": 4.0,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "neck"
+    ]
+  },
+  {
+    "_id": "ex_048",
+    "name": "Hanging Leg Raises",
+    "category": "Core",
+    "muscle_group": "Core",
+    "met_value": 5.0,
+    "difficulty": "advanced",
+    "equipment": "pullup_bar",
+    "injury_flags": [
+      "shoulder",
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_049",
+    "name": "Russian Twists",
+    "category": "Core",
+    "muscle_group": "Core",
+    "met_value": 4.0,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_050",
+    "name": "Bird Dog",
+    "category": "Mobility",
+    "muscle_group": "Core",
+    "met_value": 2.5,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_051",
+    "name": "Cat-Cow Stretch",
+    "category": "Mobility",
+    "muscle_group": "Back",
+    "met_value": 2.0,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_052",
+    "name": "Cobra Stretch",
+    "category": "Mobility",
+    "muscle_group": "Back",
+    "met_value": 2.0,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_053",
+    "name": "Child's Pose",
+    "category": "Mobility",
+    "muscle_group": "Back",
+    "met_value": 1.8,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "knee"
+    ]
+  },
+  {
+    "_id": "ex_054",
+    "name": "Sun Salutation Yoga",
+    "category": "Mobility",
+    "muscle_group": "Full Body",
+    "met_value": 3.3,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "wrist"
+    ]
+  },
+  {
+    "_id": "ex_055",
+    "name": "Hatha Yoga Flow",
+    "category": "Mobility",
+    "muscle_group": "Full Body",
+    "met_value": 2.8,
+    "difficulty": "beginner",
+    "equipment": "bodyweight",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_056",
+    "name": "Vinyasa Dynamic Yoga",
+    "category": "Mobility",
+    "muscle_group": "Full Body",
+    "met_value": 4.0,
+    "difficulty": "intermediate",
+    "equipment": "bodyweight",
+    "injury_flags": [
+      "wrist",
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_057",
+    "name": "Foam Rolling Recovery",
+    "category": "Mobility",
+    "muscle_group": "Full Body",
+    "met_value": 2.0,
+    "difficulty": "beginner",
+    "equipment": "foam_roller",
+    "injury_flags": []
+  },
+  {
+    "_id": "ex_058",
+    "name": "Kettlebell Swings",
+    "category": "HIIT",
+    "muscle_group": "Full Body",
+    "met_value": 8.0,
+    "difficulty": "intermediate",
+    "equipment": "kettlebell",
+    "injury_flags": [
+      "back"
+    ]
+  },
+  {
+    "_id": "ex_059",
+    "name": "Battle Ropes",
+    "category": "HIIT",
+    "muscle_group": "Full Body",
+    "met_value": 9.0,
+    "difficulty": "advanced",
+    "equipment": "battle_rope",
+    "injury_flags": [
+      "shoulder"
+    ]
+  },
+  {
+    "_id": "ex_060",
+    "name": "Box Jumps",
+    "category": "HIIT",
+    "muscle_group": "Legs",
+    "met_value": 8.5,
+    "difficulty": "advanced",
+    "equipment": "plyo_box",
+    "injury_flags": [
+      "knee",
+      "ankle"
+    ]
+  }
+]

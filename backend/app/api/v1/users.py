@@ -37,6 +37,11 @@ async def update_current_user_profile(
 
     if update_data:
         await db["users"].update_one({"_id": current_user["_id"]}, {"$set": update_data})
-        current_user = await db["users"].find_one({"_id": current_user["_id"]})
+        updated = await db["users"].find_one({"_id": current_user["_id"]})
+        if updated:
+            current_user = updated
+        else:
+            current_user.update(update_data)
 
     return UserResponse(**current_user)
+

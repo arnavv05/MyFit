@@ -1,5 +1,7 @@
+"""Shared Pydantic v2 schemas for the Myfitness API (all collections)."""
+
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -27,7 +29,11 @@ class UserProfile(BaseModel):
 
 class UserGoal(BaseModel):
     target_weight_kg: float = Field(..., gt=20, lt=500, description="Target weight in kilograms")
-    target_date: str = Field(..., description="Target date in ISO format YYYY-MM-DD")
+    target_date: str = Field(
+        ...,
+        pattern=r"^\d{4}-\d{2}-\d{2}$",
+        description="Target date in ISO format YYYY-MM-DD",
+    )
 
 
 class UserRegisterRequest(BaseModel):
@@ -48,6 +54,8 @@ class TokenResponse(BaseModel):
 
 
 class UserResponse(BaseModel):
+    """User profile returned to the client. Never includes password_hash."""
+
     id: str = Field(..., alias="_id")
     email: EmailStr
     profile: UserProfile
@@ -105,14 +113,14 @@ class FoodItem(BaseModel):
 # ==========================================
 class WorkoutLogEntry(BaseModel):
     exercise_id: str
-    duration_min: float = Field(..., gt=0)
+    duration_min: float = Field(..., gt=0, le=480, description="Duration in minutes (max 8 h)")
     kcal_burned: float = Field(default=0.0, ge=0)
     rating: int | None = Field(default=None, ge=1, le=5)
 
 
 class MealLogEntry(BaseModel):
     food_id: str
-    grams: float = Field(..., gt=0)
+    grams: float = Field(..., gt=0, le=5000, description="Portion in grams (max 5 kg)")
     kcal: float = Field(default=0.0, ge=0)
 
 
@@ -123,9 +131,9 @@ class CatalogResponse(BaseModel):
 
 class DailyLogCreateRequest(BaseModel):
     date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$", description="Date formatted as YYYY-MM-DD")
-    weight_kg: float | None = Field(default=None, gt=20, lt=500)
-    sleep_hours: float | None = Field(default=None, ge=0, le=24)
-    water_ml: float | None = Field(default=None, ge=0)
+    weight_kg: float | None = Field(default=None, gt=20, lt=500, description="Body weight (kg)")
+    sleep_hours: float | None = Field(default=None, ge=0, le=24, description="Sleep hours (0-24)")
+    water_ml: float | None = Field(default=None, ge=0, le=10000, description="Water intake (ml, max 10 L)")
     workouts: list[WorkoutLogEntry] = Field(default_factory=list)
     meals: list[MealLogEntry] = Field(default_factory=list)
 
@@ -165,6 +173,19 @@ class FoodRecItem(BaseModel):
     reason: str
 
 
+class RecommendationRecord(BaseModel):
+    """Stored record in the recommendations collection."""
+
+    id: str = Field(..., alias="_id")
+    user_id: str
+    rec_type: Literal["exercise", "food"]
+    items: list[dict[str, Any]]
+    model_version: str
+    generated_at: str
+
+    model_config = {"populate_by_name": True, "protected_namespaces": ()}
+
+
 # ==========================================
 # INTERACTIONS & FEEDBACK
 # ==========================================
@@ -184,3 +205,54 @@ class FeedbackResponse(BaseModel):
     timestamp: str
 
     model_config = {"populate_by_name": True}
+
+
+# ==========================================
+# ANALYTICS
+# ==========================================
+class WeightPoint(BaseModel):
+    date: str
+    weight_kg: float
+
+
+class ForecastResult(BaseModel):
+    expected_date: str | None = None
+    days_remaining: int | None = None
+    weekly_rate_kg: float | None = None
+    on_track: bool | None = None
+    message: str = ""
+
+
+class WeightAnomaly(BaseModel):
+    date: str
+    weight_kg: float
+    reason: str
+
+
+class UserAnalyticsResponse(BaseModel):
+    user_id: str
+    total_days_logged: int
+    total_workouts_completed: int
+    total_kcal_in: float
+    total_kcal_out: float
+    avg_sleep_hours: float | None
+    avg_water_ml: float | None
+    weight_history: list[WeightPoint]
+    # Streak: consecutive days logged ending today
+    current_streak_days: int = 0
+    # ML-powered fields (from recommender package)
+    goal_forecast: ForecastResult | None = None
+    weight_anomalies: list[WeightAnomaly] = Field(default_factory=list)
+
+
+class PopulationAnalyticsResponse(BaseModel):
+    total_users: int
+    total_logs_recorded: int
+    average_age: float
+    average_weight_kg: float
+    average_height_cm: float
+    diet_distribution: dict[str, int]
+    activity_distribution: dict[str, int]
+    cluster_distribution: dict[str, int] = Field(default_factory=dict)
+    popular_exercises: list[dict[str, Any]] = Field(default_factory=list)
+    popular_foods: list[dict[str, Any]] = Field(default_factory=list)

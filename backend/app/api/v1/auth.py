@@ -1,7 +1,12 @@
+"""Auth routes: POST /auth/register, POST /auth/login."""
+
 from datetime import datetime, timezone
 import uuid
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
+
 from backend.app.core.security import get_password_hash, verify_password, create_access_token
 from backend.app.db.mongodb import get_database
 from backend.app.schemas.all_schemas import (
@@ -11,35 +16,49 @@ from backend.app.schemas.all_schemas import (
     UserResponse,
 )
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+# Activity-level normalisation (handles short form sent by older frontend)
+_NORM_ACTIVITY = {
+    "light": "lightly_active",
+    "moderate": "moderately_active",
+    "active": "very_active",
+}
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a new user",
+    responses={
+        409: {"description": "Email already registered"},
+        422: {"description": "Validation error"},
+    },
+)
 async def register_user(
     payload: UserRegisterRequest,
     db: AsyncIOMotorDatabase = Depends(get_database),
 ):
-    """Register a new user with profile and goal."""
+    """Register a new user account.
+
+    - Returns **201** with the new user profile (no password hash).
+    - Returns **409** if the email is already taken.
+    """
     existing_user = await db["users"].find_one({"email": payload.email})
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail="A user with this email already exists.",
         )
 
     user_id = str(uuid.uuid4())
     now_iso = datetime.now(timezone.utc).isoformat()
 
-    # Normalization helper for activity levels
-    norm_activity = {
-        "light": "lightly_active",
-        "moderate": "moderately_active",
-        "active": "very_active",
-    }
-
     if payload.profile is not None:
         profile_dict = payload.profile.model_dump()
-        profile_dict["activity_level"] = norm_activity.get(
+        profile_dict["activity_level"] = _NORM_ACTIVITY.get(
             profile_dict["activity_level"], profile_dict["activity_level"]
         )
     else:
@@ -64,7 +83,7 @@ async def register_user(
     doc = {
         "_id": user_id,
         "email": payload.email,
-        "password_hash": get_password_hash(payload.password),
+        "password_hash": get_password_hash(payload.password),  # never returned
         "profile": profile_dict,
         "goal": goal_dict,
         "cluster_id": None,
@@ -72,6 +91,7 @@ async def register_user(
     }
 
     await db["users"].insert_one(doc)
+    logger.info("Registered new user id=%s email=%s", user_id, payload.email)
 
     return UserResponse(
         _id=user_id,
@@ -83,12 +103,23 @@ async def register_user(
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="Obtain a JWT access token",
+    responses={
+        401: {"description": "Invalid credentials"},
+        422: {"description": "Validation error"},
+    },
+)
 async def login_user(
     payload: UserLoginRequest,
     db: AsyncIOMotorDatabase = Depends(get_database),
 ):
-    """Authenticate with email and password to receive JWT token."""
+    """Authenticate with email and password.
+
+    Returns a **Bearer** JWT token valid for `ACCESS_TOKEN_EXPIRE_MINUTES`.
+    """
     user = await db["users"].find_one({"email": payload.email})
     if not user or not verify_password(payload.password, user["password_hash"]):
         raise HTTPException(
@@ -98,4 +129,5 @@ async def login_user(
         )
 
     token = create_access_token(data={"sub": user["_id"], "email": user["email"]})
+    logger.info("Login successful user_id=%s", user["_id"])
     return TokenResponse(access_token=token)

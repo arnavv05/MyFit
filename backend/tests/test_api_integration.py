@@ -293,3 +293,50 @@ async def test_get_catalog(test_app):
         assert "foods" in data
         assert len(data["exercises"]) >= 1
 
+
+@pytest.mark.asyncio
+async def test_duplicate_registration_returns_409(test_app):
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+        payload = {"email": "dup@example.com", "password": "password123"}
+        r1 = await ac.post("/api/v1/auth/register", json=payload)
+        assert r1.status_code == 201
+
+        r2 = await ac.post("/api/v1/auth/register", json=payload)
+        assert r2.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_invalid_login_returns_401(test_app):
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+        r = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "nonexistent@example.com", "password": "wrong"},
+        )
+        assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_update_profile_and_goal(test_app, auth_headers):
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+        update_payload = {
+            "profile": {
+                "age": 28,
+                "gender": "male",
+                "height_cm": 182.0,
+                "weight_kg": 76.0,
+                "activity_level": "very_active",
+                "diet_type": "veg",
+                "injuries": ["shoulder"],
+            },
+            "goal": {
+                "target_weight_kg": 72.0,
+                "target_date": "2026-11-30",
+            },
+        }
+        resp = await ac.put("/api/v1/users/me", json=update_payload, headers=auth_headers)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["profile"]["age"] == 28
+        assert data["goal"]["target_weight_kg"] == 72.0
+
+
