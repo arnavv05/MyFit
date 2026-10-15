@@ -9,7 +9,9 @@ from backend.app.schemas.all_schemas import FeedbackRequest, FeedbackResponse
 router = APIRouter(tags=["Interactions & Feedback"])
 
 
-@router.post("/feedback", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/feedback", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED
+)
 async def submit_feedback(
     payload: FeedbackRequest,
     current_user: dict = Depends(get_current_user),

@@ -69,7 +69,7 @@ export function ProgressPage() {
           api.logs.getLogs(),
         ])
         setAnalytics(data)
-        setStreak(computeStreak(logs))
+        setStreak(data.streak ?? computeStreak(logs))
       } catch (err) {
         setError(err.message || 'Failed to fetch personal progress analytics.')
       } finally {
@@ -299,6 +299,100 @@ export function ProgressPage() {
           </div>
         </div>
       </div>
+
+      {/* Goal-Date Forecast */}
+      {analytics?.forecast && (
+        <div
+          className="card"
+          style={{
+            marginTop: '1.5rem',
+            background: analytics.forecast.on_track
+              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(17, 24, 39, 0.8))'
+              : 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(17, 24, 39, 0.8))',
+            border: analytics.forecast.on_track
+              ? '1px solid rgba(16, 185, 129, 0.3)'
+              : '1px solid rgba(245, 158, 11, 0.3)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <span>🔮</span> Goal-Date Forecast
+            </h2>
+            <span
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                padding: '0.2rem 0.6rem',
+                borderRadius: 'var(--radius-sm)',
+                background: analytics.forecast.on_track ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                color: analytics.forecast.on_track ? 'var(--status-success)' : 'var(--status-warning)',
+              }}
+            >
+              {analytics.forecast.on_track ? '✓ On Track' : '⚡ Adjustment Suggested'}
+            </span>
+          </div>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+            {analytics.forecast.message}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', fontSize: '0.85rem' }}>
+            {analytics.forecast.projected_goal_date && (
+              <div className="metric-box" style={{ padding: '0.5rem' }}>
+                <div className="metric-label">Projected Date</div>
+                <strong style={{ color: 'var(--text-primary)' }}>{analytics.forecast.projected_goal_date}</strong>
+              </div>
+            )}
+            {analytics.forecast.days_to_goal !== undefined && analytics.forecast.days_to_goal !== null && (
+              <div className="metric-box" style={{ padding: '0.5rem' }}>
+                <div className="metric-label">Days Remaining</div>
+                <strong style={{ color: 'var(--accent-primary)' }}>{analytics.forecast.days_to_goal} days</strong>
+              </div>
+            )}
+            {analytics.forecast.weekly_rate_kg !== undefined && analytics.forecast.weekly_rate_kg !== null && (
+              <div className="metric-box" style={{ padding: '0.5rem' }}>
+                <div className="metric-label">Weekly Velocity</div>
+                <strong style={{ color: 'var(--accent-cyan)' }}>{analytics.forecast.weekly_rate_kg} kg/wk</strong>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Anomaly Warnings */}
+      {analytics?.anomalies && analytics.anomalies.length > 0 && (
+        <div className="card" style={{ marginTop: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+          <h2 style={{ fontSize: '1.15rem', color: '#f87171', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>⚠️</span> Biometric &amp; Caloric Anomaly Warnings
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {analytics.anomalies.map((ano, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  borderLeft: '3px solid #ef4444',
+                  fontSize: '0.85rem',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                }}
+              >
+                <div>
+                  <strong style={{ color: 'var(--text-primary)' }}>[{ano.type || 'Alert'}] </strong>
+                  <span style={{ color: 'var(--text-secondary)' }}>{ano.message}</span>
+                </div>
+                {ano.date && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ano.date}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
+
   )
 }

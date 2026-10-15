@@ -7,7 +7,11 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.app.core.security import get_password_hash, verify_password, create_access_token
+from backend.app.core.security import (
+    get_password_hash,
+    verify_password,
+    create_access_token,
+)
 from backend.app.db.mongodb import get_database
 from backend.app.schemas.all_schemas import (
     UserRegisterRequest,

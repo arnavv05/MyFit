@@ -8,7 +8,9 @@ from backend.app.core.config import settings
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a bcrypt hash."""
     try:
-        return bcrypt.checkpw(plain_password.encode("utf-8")[:72], hashed_password.encode("utf-8"))
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8")[:72], hashed_password.encode("utf-8")
+        )
     except Exception:
         return False
 
@@ -19,7 +21,9 @@ def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(pwd_bytes, bcrypt.gensalt()).decode("utf-8")
 
 
-def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    data: dict[str, Any], expires_delta: timedelta | None = None
+) -> str:
     """Create signed JWT access token."""
     to_encode = data.copy()
     now = datetime.now(timezone.utc)
@@ -34,7 +38,9 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
 def decode_access_token(token: str) -> dict[str, Any] | None:
     """Decode and validate a JWT access token."""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         return payload
     except jwt.PyJWTError:
         return None

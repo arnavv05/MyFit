@@ -19,16 +19,16 @@ async def create_or_update_daily_log(
     """
     user_id = current_user["_id"]
     user_weight = (
-        payload.weight_kg
-        or current_user.get("profile", {}).get("weight_kg")
-        or 70.0
+        payload.weight_kg or current_user.get("profile", {}).get("weight_kg") or 70.0
     )
 
     workouts_data = []
     for w in payload.workouts:
         w_dict = w.model_dump()
         if not w_dict.get("kcal_burned") or w_dict["kcal_burned"] <= 0:
-            w_dict["kcal_burned"] = round(5.0 * user_weight * (w.duration_min / 60.0), 2)
+            w_dict["kcal_burned"] = round(
+                5.0 * user_weight * (w.duration_min / 60.0), 2
+            )
         workouts_data.append(w_dict)
 
     meals_data = []
@@ -42,7 +42,9 @@ async def create_or_update_daily_log(
     kcal_in = sum(m["kcal"] for m in meals_data)
     kcal_out = sum(w["kcal_burned"] for w in workouts_data)
 
-    existing_log = await db["daily_logs"].find_one({"user_id": user_id, "date": payload.date})
+    existing_log = await db["daily_logs"].find_one(
+        {"user_id": user_id, "date": payload.date}
+    )
 
     doc_data = {
         "user_id": user_id,
@@ -57,7 +59,9 @@ async def create_or_update_daily_log(
     }
 
     if existing_log:
-        await db["daily_logs"].update_one({"_id": existing_log["_id"]}, {"$set": doc_data})
+        await db["daily_logs"].update_one(
+            {"_id": existing_log["_id"]}, {"$set": doc_data}
+        )
         doc_data["_id"] = existing_log["_id"]
     else:
         log_id = str(uuid.uuid4())
@@ -69,7 +73,9 @@ async def create_or_update_daily_log(
 
 @router.get("", response_model=list[DailyLogResponse])
 async def get_daily_logs(
-    from_date: str | None = Query(None, alias="from", description="Start date (YYYY-MM-DD)"),
+    from_date: str | None = Query(
+        None, alias="from", description="Start date (YYYY-MM-DD)"
+    ),
     to_date: str | None = Query(None, alias="to", description="End date (YYYY-MM-DD)"),
     current_user: dict = Depends(get_current_user),
     db: AsyncIOMotorDatabase = Depends(get_database),

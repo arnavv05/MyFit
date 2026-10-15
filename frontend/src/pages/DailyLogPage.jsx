@@ -27,15 +27,30 @@ export function DailyLogPage() {
   // Catalog items for selection (addressing Gap #4)
   const [catalog, setCatalog] = useState({ exercises: [], foods: [] })
   const [selectedExId, setSelectedExId] = useState('')
+  const [exSearch, setExSearch] = useState('')
   const [exDuration, setExDuration] = useState(30)
   const [exRating, setExRating] = useState(5)
 
   const [selectedFoodId, setSelectedFoodId] = useState('')
+  const [foodSearch, setFoodSearch] = useState('')
   const [foodGrams, setFoodGrams] = useState(200)
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' })
+
+  const filteredExercises = catalog.exercises.filter((ex) =>
+    !exSearch ||
+    ex.name.toLowerCase().includes(exSearch.toLowerCase()) ||
+    (ex.category && ex.category.toLowerCase().includes(exSearch.toLowerCase()))
+  )
+
+  const filteredFoods = catalog.foods.filter((f) =>
+    !foodSearch ||
+    f.name.toLowerCase().includes(foodSearch.toLowerCase()) ||
+    (f.cuisine && f.cuisine.toLowerCase().includes(foodSearch.toLowerCase()))
+  )
+
 
   // Fetch catalog and current day's log
   useEffect(() => {
@@ -79,7 +94,7 @@ export function DailyLogPage() {
   }, [selectedDate])
 
   const handleAddWorkout = () => {
-    const exItem = catalog.exercises.find((e) => e.id === selectedExId)
+    const exItem = catalog.exercises.find((e) => e.id === selectedExId) || filteredExercises[0]
     if (!exItem) return
 
     setWorkouts([
@@ -98,7 +113,7 @@ export function DailyLogPage() {
   }
 
   const handleAddMeal = () => {
-    const foodItem = catalog.foods.find((f) => f.id === selectedFoodId)
+    const foodItem = catalog.foods.find((f) => f.id === selectedFoodId) || filteredFoods[0]
     if (!foodItem) return
 
     setMeals([
@@ -282,21 +297,52 @@ export function DailyLogPage() {
           </p>
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-            <div style={{ flex: '2', minWidth: '200px' }}>
-              <label className="form-label" htmlFor="workout-select">
-                Exercise
-              </label>
+            <div style={{ flex: '2', minWidth: '220px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <label className="form-label" htmlFor="workout-select" style={{ margin: 0 }}>
+                  Exercise
+                </label>
+                <input
+                  type="text"
+                  placeholder="🔍 Search exercise..."
+                  value={exSearch}
+                  onChange={(e) => {
+                    const q = e.target.value
+                    setExSearch(q)
+                    const m = catalog.exercises.filter((ex) =>
+                      !q || ex.name.toLowerCase().includes(q.toLowerCase()) || (ex.category && ex.category.toLowerCase().includes(q.toLowerCase()))
+                    )
+                    if (m.length > 0 && !m.some((x) => x.id === selectedExId)) {
+                      setSelectedExId(m[0].id)
+                    }
+                  }}
+                  style={{
+                    fontSize: '0.8rem',
+                    padding: '0.2rem 0.5rem',
+                    width: '150px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-main)',
+                    color: 'var(--text-primary)',
+                  }}
+                  aria-label="Filter exercises"
+                />
+              </div>
               <select
                 id="workout-select"
                 className="form-select"
                 value={selectedExId}
                 onChange={(e) => setSelectedExId(e.target.value)}
               >
-                {catalog.exercises.map((ex) => (
-                  <option key={ex.id} value={ex.id}>
-                    {ex.name} ({ex.category})
-                  </option>
-                ))}
+                {filteredExercises.length === 0 ? (
+                  <option value="" disabled>No exercises match search</option>
+                ) : (
+                  filteredExercises.map((ex) => (
+                    <option key={ex.id} value={ex.id}>
+                      {ex.name} ({ex.category})
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 
@@ -395,20 +441,51 @@ export function DailyLogPage() {
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
             <div style={{ flex: '2', minWidth: '220px' }}>
-              <label className="form-label" htmlFor="meal-select">
-                Food Item
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <label className="form-label" htmlFor="meal-select" style={{ margin: 0 }}>
+                  Food Item
+                </label>
+                <input
+                  type="text"
+                  placeholder="🔍 Search food..."
+                  value={foodSearch}
+                  onChange={(e) => {
+                    const q = e.target.value
+                    setFoodSearch(q)
+                    const m = catalog.foods.filter((f) =>
+                      !q || f.name.toLowerCase().includes(q.toLowerCase()) || (f.cuisine && f.cuisine.toLowerCase().includes(q.toLowerCase()))
+                    )
+                    if (m.length > 0 && !m.some((x) => x.id === selectedFoodId)) {
+                      setSelectedFoodId(m[0].id)
+                    }
+                  }}
+                  style={{
+                    fontSize: '0.8rem',
+                    padding: '0.2rem 0.5rem',
+                    width: '150px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-main)',
+                    color: 'var(--text-primary)',
+                  }}
+                  aria-label="Filter foods"
+                />
+              </div>
               <select
                 id="meal-select"
                 className="form-select"
                 value={selectedFoodId}
                 onChange={(e) => setSelectedFoodId(e.target.value)}
               >
-                {catalog.foods.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.name} ({f.diet_type})
-                  </option>
-                ))}
+                {filteredFoods.length === 0 ? (
+                  <option value="" disabled>No foods match search</option>
+                ) : (
+                  filteredFoods.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name} ({f.diet_type})
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

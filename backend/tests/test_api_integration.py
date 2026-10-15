@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 import pytest
 from httpx import AsyncClient, ASGITransport
 from backend.app.main import app
@@ -63,7 +62,9 @@ class InMemoryAsyncDatabase:
                 self.data.append(doc)
                 return doc
 
-            async def update_one(self, filter_dict: dict, update_dict: dict, upsert: bool = False):
+            async def update_one(
+                self, filter_dict: dict, update_dict: dict, upsert: bool = False
+            ):
                 existing = await self.find_one(filter_dict)
                 if existing:
                     if "$set" in update_dict:
@@ -142,7 +143,9 @@ mock_test_user = {
 
 @pytest.fixture
 def auth_headers():
-    token = create_access_token({"sub": mock_test_user["_id"], "email": mock_test_user["email"]})
+    token = create_access_token(
+        {"sub": mock_test_user["_id"], "email": mock_test_user["email"]}
+    )
     return {"Authorization": f"Bearer {token}"}
 
 
@@ -157,7 +160,9 @@ def test_app():
 
 @pytest.mark.asyncio
 async def test_health_endpoint(test_app):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         resp = await ac.get("/health")
     assert resp.status_code == 200
     assert resp.json()["status"] == "ok"
@@ -165,7 +170,9 @@ async def test_health_endpoint(test_app):
 
 @pytest.mark.asyncio
 async def test_get_users_me(test_app, auth_headers):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         resp = await ac.get("/api/v1/users/me", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
@@ -197,14 +204,18 @@ async def test_post_and_get_daily_log(test_app, auth_headers):
         ],
     }
 
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         post_resp = await ac.post("/api/v1/logs", json=payload, headers=auth_headers)
         assert post_resp.status_code == 200
         post_data = post_resp.json()
         assert post_data["kcal_in"] == 136.0
         assert post_data["kcal_out"] == 95.0
 
-        get_resp = await ac.get("/api/v1/logs?from=2026-10-01&to=2026-10-31", headers=auth_headers)
+        get_resp = await ac.get(
+            "/api/v1/logs?from=2026-10-01&to=2026-10-31", headers=auth_headers
+        )
         assert get_resp.status_code == 200
         logs = get_resp.json()
         assert len(logs) >= 1
@@ -213,7 +224,9 @@ async def test_post_and_get_daily_log(test_app, auth_headers):
 
 @pytest.mark.asyncio
 async def test_get_recommend_exercises(test_app, auth_headers):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         resp = await ac.get("/api/v1/recommend/exercises?limit=2", headers=auth_headers)
     assert resp.status_code == 200
     recs = resp.json()
@@ -224,7 +237,9 @@ async def test_get_recommend_exercises(test_app, auth_headers):
 
 @pytest.mark.asyncio
 async def test_get_recommend_foods(test_app, auth_headers):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         resp = await ac.get("/api/v1/recommend/foods?limit=2", headers=auth_headers)
     assert resp.status_code == 200
     recs = resp.json()
@@ -240,7 +255,9 @@ async def test_post_feedback(test_app, auth_headers):
         "item_id": "ex_pushups",
         "rating": 5,
     }
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         resp = await ac.post("/api/v1/feedback", json=payload, headers=auth_headers)
     assert resp.status_code == 201
     data = resp.json()
@@ -251,7 +268,9 @@ async def test_post_feedback(test_app, auth_headers):
 
 @pytest.mark.asyncio
 async def test_get_analytics(test_app, auth_headers):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         me_resp = await ac.get("/api/v1/analytics/me", headers=auth_headers)
         assert me_resp.status_code == 200
         assert "total_workouts_completed" in me_resp.json()
@@ -263,7 +282,9 @@ async def test_get_analytics(test_app, auth_headers):
 
 @pytest.mark.asyncio
 async def test_register_minimal_and_login(test_app):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         reg_payload = {
             "email": "newuser@example.com",
             "password": "securepassword123",
@@ -285,7 +306,9 @@ async def test_register_minimal_and_login(test_app):
 
 @pytest.mark.asyncio
 async def test_get_catalog(test_app):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         resp = await ac.get("/api/v1/catalog")
         assert resp.status_code == 200
         data = resp.json()
@@ -296,7 +319,9 @@ async def test_get_catalog(test_app):
 
 @pytest.mark.asyncio
 async def test_duplicate_registration_returns_409(test_app):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         payload = {"email": "dup@example.com", "password": "password123"}
         r1 = await ac.post("/api/v1/auth/register", json=payload)
         assert r1.status_code == 201
@@ -307,7 +332,9 @@ async def test_duplicate_registration_returns_409(test_app):
 
 @pytest.mark.asyncio
 async def test_invalid_login_returns_401(test_app):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         r = await ac.post(
             "/api/v1/auth/login",
             json={"email": "nonexistent@example.com", "password": "wrong"},
@@ -317,7 +344,9 @@ async def test_invalid_login_returns_401(test_app):
 
 @pytest.mark.asyncio
 async def test_update_profile_and_goal(test_app, auth_headers):
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
         update_payload = {
             "profile": {
                 "age": 28,
@@ -333,10 +362,10 @@ async def test_update_profile_and_goal(test_app, auth_headers):
                 "target_date": "2026-11-30",
             },
         }
-        resp = await ac.put("/api/v1/users/me", json=update_payload, headers=auth_headers)
+        resp = await ac.put(
+            "/api/v1/users/me", json=update_payload, headers=auth_headers
+        )
         assert resp.status_code == 200
         data = resp.json()
         assert data["profile"]["age"] == 28
         assert data["goal"]["target_weight_kg"] == 72.0
-
-

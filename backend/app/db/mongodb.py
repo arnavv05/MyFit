@@ -30,7 +30,9 @@ async def close_mongo_connection() -> None:
 async def get_database() -> AsyncIOMotorDatabase:
     """Dependency helper to get active database instance."""
     if db_manager.db is None:
-        raise RuntimeError("Database not initialized. Ensure connect_to_mongo() was executed.")
+        raise RuntimeError(
+            "Database not initialized. Ensure connect_to_mongo() was executed."
+        )
     return db_manager.db
 
 

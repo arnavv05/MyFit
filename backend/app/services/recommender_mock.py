@@ -1,4 +1,3 @@
-from typing import Any
 from backend.app.schemas.all_schemas import ExerciseRecItem, FoodRecItem, FoodMacros
 
 

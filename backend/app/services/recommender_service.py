@@ -140,7 +140,8 @@ class RecommenderService:
         """Get food recommendations calibrated to `kcal_target`."""
         raw = self._engine.get_food_recs(user_id=user_id, kcal_target=kcal_target, n=n)
         return [
-            item if isinstance(item, FoodRecItem) else FoodRecItem(**item) for item in raw
+            item if isinstance(item, FoodRecItem) else FoodRecItem(**item)
+            for item in raw
         ]
 
 

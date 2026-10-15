@@ -30,13 +30,17 @@ async def update_current_user_profile(
             "moderate": "moderately_active",
             "active": "very_active",
         }
-        p_dict["activity_level"] = norm_map.get(p_dict["activity_level"], p_dict["activity_level"])
+        p_dict["activity_level"] = norm_map.get(
+            p_dict["activity_level"], p_dict["activity_level"]
+        )
         update_data["profile"] = p_dict
     if payload.goal is not None:
         update_data["goal"] = payload.goal.model_dump()
 
     if update_data:
-        await db["users"].update_one({"_id": current_user["_id"]}, {"$set": update_data})
+        await db["users"].update_one(
+            {"_id": current_user["_id"]}, {"$set": update_data}
+        )
         updated = await db["users"].find_one({"_id": current_user["_id"]})
         if updated:
             current_user = updated
@@ -44,4 +48,3 @@ async def update_current_user_profile(
             current_user.update(update_data)
 
     return UserResponse(**current_user)
-

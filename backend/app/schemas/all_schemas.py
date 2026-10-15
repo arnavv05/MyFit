@@ -1,6 +1,5 @@
 """Shared Pydantic v2 schemas for the Myfitness API (all collections)."""
 
-from datetime import datetime
 from typing import Any, Literal
 from pydantic import BaseModel, EmailStr, Field
 
@@ -24,11 +23,15 @@ class UserProfile(BaseModel):
         "extra_active",
     ] = Field(..., description="Activity level for TDEE calculation")
     diet_type: Literal["veg", "nonveg"] = Field(..., description="Dietary preference")
-    injuries: list[str] = Field(default_factory=list, description="Injuries or physical limitations")
+    injuries: list[str] = Field(
+        default_factory=list, description="Injuries or physical limitations"
+    )
 
 
 class UserGoal(BaseModel):
-    target_weight_kg: float = Field(..., gt=20, lt=500, description="Target weight in kilograms")
+    target_weight_kg: float = Field(
+        ..., gt=20, lt=500, description="Target weight in kilograms"
+    )
     target_date: str = Field(
         ...,
         pattern=r"^\d{4}-\d{2}-\d{2}$",
@@ -38,7 +41,9 @@ class UserGoal(BaseModel):
 
 class UserRegisterRequest(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=6, description="Plaintext password, min 6 characters")
+    password: str = Field(
+        ..., min_length=6, description="Plaintext password, min 6 characters"
+    )
     profile: UserProfile | None = None
     goal: UserGoal | None = None
 
@@ -113,7 +118,9 @@ class FoodItem(BaseModel):
 # ==========================================
 class WorkoutLogEntry(BaseModel):
     exercise_id: str
-    duration_min: float = Field(..., gt=0, le=480, description="Duration in minutes (max 8 h)")
+    duration_min: float = Field(
+        ..., gt=0, le=480, description="Duration in minutes (max 8 h)"
+    )
     kcal_burned: float = Field(default=0.0, ge=0)
     rating: int | None = Field(default=None, ge=1, le=5)
 
@@ -130,10 +137,18 @@ class CatalogResponse(BaseModel):
 
 
 class DailyLogCreateRequest(BaseModel):
-    date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$", description="Date formatted as YYYY-MM-DD")
-    weight_kg: float | None = Field(default=None, gt=20, lt=500, description="Body weight (kg)")
-    sleep_hours: float | None = Field(default=None, ge=0, le=24, description="Sleep hours (0-24)")
-    water_ml: float | None = Field(default=None, ge=0, le=10000, description="Water intake (ml, max 10 L)")
+    date: str = Field(
+        ..., pattern=r"^\d{4}-\d{2}-\d{2}$", description="Date formatted as YYYY-MM-DD"
+    )
+    weight_kg: float | None = Field(
+        default=None, gt=20, lt=500, description="Body weight (kg)"
+    )
+    sleep_hours: float | None = Field(
+        default=None, ge=0, le=24, description="Sleep hours (0-24)"
+    )
+    water_ml: float | None = Field(
+        default=None, ge=0, le=10000, description="Water intake (ml, max 10 L)"
+    )
     workouts: list[WorkoutLogEntry] = Field(default_factory=list)
     meals: list[MealLogEntry] = Field(default_factory=list)
 

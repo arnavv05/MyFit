@@ -68,9 +68,9 @@ npm run dev
 
 **Step 4 — Verify:** open [http://localhost:5173](http://localhost:5173), register a new account (with profile + goal), log in, and check the Progress page.
 
-> **Known gaps (tracked in `docs/decisions.md`):**
-> - `GET /exercises?q=` and `GET /foods?q=` not yet implemented — catalog falls back to mock data automatically.
-> - Food recommendations don't include `diet_type` — derived from the user's own setting as a workaround.
+> **Live Backend Endpoints:**
+> - Connected to live backend at `/api/v1` with full catalog support (`/api/v1/catalog`), JWT authentication, daily log persistence, recommendations, feedback, and telemetry analytics.
+
 
 ---
 

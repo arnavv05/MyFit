@@ -158,13 +158,23 @@ class HybridExerciseRecommender:
             return []
 
         # Injury Safety Filter
-        def is_safe(row) -> bool:
-            flags_str = str(row.get("injury_flags", ""))
-            flags = [
-                f.strip().lower()
-                for f in flags_str.split(";")
-                if f.strip() and f.strip() != "none"
+        def parse_injury_flags(val) -> list[str]:
+            if isinstance(val, (list, tuple, set)):
+                return [str(f).strip().lower() for f in val if str(f).strip()]
+            if not val:
+                return []
+            val_str = str(val).strip("[]'\" ")
+            import re
+
+            tokens = re.split(r"[,;|]", val_str)
+            return [
+                t.strip().strip("'\"").lower()
+                for t in tokens
+                if t.strip() and t.strip().lower() != "none"
             ]
+
+        def is_safe(row) -> bool:
+            flags = parse_injury_flags(row.get("injury_flags", ""))
             return not any(inj in flags for inj in injuries)
 
         safe_df = self.exercises_df[self.exercises_df.apply(is_safe, axis=1)].copy()

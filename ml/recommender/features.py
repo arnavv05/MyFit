@@ -66,16 +66,16 @@ def extract_features_from_dict(
 
     if logs and len(logs) > 0:
         sleep_vals = [
-            float(l.get("sleep_hours", 7.0))
-            for l in logs
-            if "sleep_hours" in l and pd.notna(l["sleep_hours"])
+            float(log_item.get("sleep_hours", 7.0))
+            for log_item in logs
+            if "sleep_hours" in log_item and pd.notna(log_item["sleep_hours"])
         ]
         if sleep_vals:
             avg_sleep = float(np.mean(sleep_vals))
 
         workout_durations = []
-        for l in logs:
-            workouts_field = l.get("workouts", [])
+        for log_item in logs:
+            workouts_field = log_item.get("workouts", [])
             if isinstance(workouts_field, str):
                 try:
                     workouts_field = json.loads(workouts_field)

@@ -30,7 +30,9 @@ from backend.app.core.config import settings  # noqa: E402
 from backend.app.core.security import get_password_hash  # noqa: E402
 from backend.app.db.mongodb import init_db_indexes  # noqa: E402
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 DATA_DIR = ROOT / "data"
@@ -72,8 +74,7 @@ async def seed_foods(db) -> int:
     if not foods:
         return 0
     ops = [
-        UpdateOne({"_id": item["_id"]}, {"$set": item}, upsert=True)
-        for item in foods
+        UpdateOne({"_id": item["_id"]}, {"$set": item}, upsert=True) for item in foods
     ]
     await db["foods"].bulk_write(ops, ordered=False)
     logger.info("Loaded %d foods.", len(foods))
@@ -139,12 +140,17 @@ async def seed_synthetic_users(db) -> int:
             cluster_id = None
 
         injuries_raw = row.get("injuries", "")
-        injuries = [i.strip() for i in injuries_raw.split(",") if i.strip()] if injuries_raw else []
+        injuries = (
+            [i.strip() for i in injuries_raw.split(",") if i.strip()]
+            if injuries_raw
+            else []
+        )
 
         doc = {
             "_id": user_id,
             "email": row.get("email", f"{user_id}@myfitness.synthetic"),
-            "password_hash": row.get("password_hash") or get_password_hash("synthetic_pw"),
+            "password_hash": row.get("password_hash")
+            or get_password_hash("synthetic_pw"),
             "profile": {
                 "age": int(float(row.get("age", 25))),
                 "gender": row.get("gender", "male"),
@@ -179,7 +185,14 @@ async def seed_demo_logs(db, demo_user: dict) -> int:
             "weight_kg": 74.5,
             "sleep_hours": 7.5,
             "water_ml": 2500,
-            "workouts": [{"exercise_id": "ex_004", "duration_min": 20, "kcal_burned": 95, "rating": 5}],
+            "workouts": [
+                {
+                    "exercise_id": "ex_004",
+                    "duration_min": 20,
+                    "kcal_burned": 95,
+                    "rating": 5,
+                }
+            ],
             "meals": [{"food_id": "fd_001", "grams": 200, "kcal": 136}],
             "kcal_in": 1850.0,
             "kcal_out": 2200.0,
@@ -191,7 +204,14 @@ async def seed_demo_logs(db, demo_user: dict) -> int:
             "weight_kg": 74.2,
             "sleep_hours": 8.0,
             "water_ml": 2800,
-            "workouts": [{"exercise_id": "ex_009", "duration_min": 30, "kcal_burned": 180, "rating": 4}],
+            "workouts": [
+                {
+                    "exercise_id": "ex_009",
+                    "duration_min": 30,
+                    "kcal_burned": 180,
+                    "rating": 4,
+                }
+            ],
             "meals": [{"food_id": "fd_020", "grams": 150, "kcal": 397}],
             "kcal_in": 1950.0,
             "kcal_out": 2300.0,
@@ -203,7 +223,14 @@ async def seed_demo_logs(db, demo_user: dict) -> int:
             "weight_kg": 74.0,
             "sleep_hours": 7.0,
             "water_ml": 3000,
-            "workouts": [{"exercise_id": "ex_012", "duration_min": 25, "kcal_burned": 150, "rating": 5}],
+            "workouts": [
+                {
+                    "exercise_id": "ex_012",
+                    "duration_min": 25,
+                    "kcal_burned": 150,
+                    "rating": 5,
+                }
+            ],
             "meals": [{"food_id": "fd_002", "grams": 200, "kcal": 222}],
             "kcal_in": 2000.0,
             "kcal_out": 2350.0,
@@ -215,7 +242,14 @@ async def seed_demo_logs(db, demo_user: dict) -> int:
             "weight_kg": 73.8,
             "sleep_hours": 7.8,
             "water_ml": 2600,
-            "workouts": [{"exercise_id": "ex_021", "duration_min": 15, "kcal_burned": 75, "rating": 4}],
+            "workouts": [
+                {
+                    "exercise_id": "ex_021",
+                    "duration_min": 15,
+                    "kcal_burned": 75,
+                    "rating": 4,
+                }
+            ],
             "meals": [{"food_id": "fd_001", "grams": 250, "kcal": 170}],
             "kcal_in": 1900.0,
             "kcal_out": 2250.0,
@@ -227,7 +261,14 @@ async def seed_demo_logs(db, demo_user: dict) -> int:
             "weight_kg": 73.5,
             "sleep_hours": 8.2,
             "water_ml": 3100,
-            "workouts": [{"exercise_id": "ex_004", "duration_min": 25, "kcal_burned": 120, "rating": 5}],
+            "workouts": [
+                {
+                    "exercise_id": "ex_004",
+                    "duration_min": 25,
+                    "kcal_burned": 120,
+                    "rating": 5,
+                }
+            ],
             "meals": [{"food_id": "fd_020", "grams": 200, "kcal": 530}],
             "kcal_in": 2050.0,
             "kcal_out": 2400.0,
@@ -296,7 +337,9 @@ async def seed_csv_logs(db) -> int:
             "user_id": user_id,
             "date": date_val,
             "weight_kg": float(row["weight_kg"]) if row.get("weight_kg") else None,
-            "sleep_hours": float(row["sleep_hours"]) if row.get("sleep_hours") else None,
+            "sleep_hours": float(row["sleep_hours"])
+            if row.get("sleep_hours")
+            else None,
             "water_ml": float(row["water_ml"]) if row.get("water_ml") else None,
             "workouts": workouts,
             "meals": meals,
@@ -403,7 +446,11 @@ async def seed_csv_interactions(db) -> int:
 
 async def seed_data() -> None:
     """Main entry point: connect → index → seed all collections → close."""
-    logger.info("Connecting to MongoDB: %s / db=%s", settings.MONGODB_URI, settings.MONGODB_DB_NAME)
+    logger.info(
+        "Connecting to MongoDB: %s / db=%s",
+        settings.MONGODB_URI,
+        settings.MONGODB_DB_NAME,
+    )
     client = AsyncIOMotorClient(settings.MONGODB_URI)
     db = client[settings.MONGODB_DB_NAME]
 

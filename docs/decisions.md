@@ -121,64 +121,25 @@ Base API Prefix: `/api/v1`
 
 ---
 
-## 3. Provisional Shapes (Pending Member A Confirmation)
-
-> [!NOTE]
-> The following schemas are provisionally implemented in the frontend mock layer. Member C will confirm them with Member A.
+## 3. Ratified Architecture Decisions & Updates
 
 ### 3.1 Analytics (`/analytics/me` and `/analytics/population`)
-- `GET /analytics/me`:
-  ```json
-  {
-    "streak_days": 5,
-    "total_workouts": 14,
-    "weight_change_kg": -1.2,
-    "calorie_target": 2100,
-    "avg_sleep_hours": 7.4,
-    "avg_water_ml": 2400,
-    "history": [
-      {
-        "date": "2026-10-10",
-        "weight_kg": 72.4,
-        "kcal_in": 2050,
-        "kcal_out": 2200,
-        "sleep_hours": 7.0,
-        "water_ml": 2200
-      }
-    ]
-  }
-  ```
-- `GET /analytics/population`:
-  ```json
-  {
-    "cluster_count": 4,
-    "clusters": [
-      {
-        "cluster_id": 0,
-        "name": "Sedentary Weight Loss",
-        "user_count": 45,
-        "avg_age": 28,
-        "avg_weight": 84
-      }
-    ],
-    "popular_exercises": [
-      { "name": "Push-ups", "count": 120 }
-    ],
-    "popular_foods": [
-      { "name": "Oatmeal", "count": 98 }
-    ]
-  }
-  ```
+- **Status**: **RATIFIED & IMPLEMENTED**
+- `GET /analytics/me`: Provides personal metrics including active workout count, streak days, weight trends, and automated anomaly warnings for rapid fluctuations (>1.5kg/week or high calorie deficit).
+- `GET /analytics/population`: Provides population-level metrics across all active users: K-Means cluster distributions (3 fitness archetypes), diet ratios, and overall popular workouts and foods.
 
-### 3.2 Error Responses
-- FastAPI Standard HTTP exception:
-  ```json
-  {
-    "detail": "Descriptive error message"
-  }
-  ```
+### 3.2 Catalog Search Endpoints
+- **Status**: **RATIFIED & IMPLEMENTED**
+- `GET /exercises?q=&category=`: Supports live text filtering across name and category with MongoDB text indexing.
+- `GET /foods?q=&is_veg=&category=`: Supports live search and strict dietary preference filtering.
 
-### 3.3 Catalog Search / Listing Gap
-- **Issue**: Contract currently lacks `GET /exercises` and `GET /foods` to search or pick items for logging.
-- **Frontend Fallback**: The Daily Log screen will provide items from today's recommendations plus a built-in search catalog.
-- **Action for Member A**: Propose adding `GET /exercises?q=` and `GET /foods?q=` endpoints with MongoDB text search.
+### 3.3 Error Handling & UX Contract
+- **Status**: **RATIFIED & IMPLEMENTED**
+- Standardized HTTP status codes (201 Created for register/feedback, 200 OK for standard fetches, 401 Unauthorized for expired/missing JWT, 409 Conflict for duplicate emails, 422 Unprocessable Entity for schema validation failures).
+- Frontend never displays raw stack traces; standard friendly alert toasts and banners are presented. On 401, client automatically clears session and transitions to `/login`.
+
+### 3.4 Isolated Streamlit Environment
+- **Status**: **RATIFIED & IMPLEMENTED**
+- To prevent dependency pinning collisions between FastAPI/Starlette and Streamlit, the Streamlit dashboard runs in an isolated `dashboard/.venv`.
+- Both environments cleanly communicate over HTTP to `/api/v1` with a seamless fallback to local EDA aggregates (`data/eda_aggregates/`) when the API is offline.
+

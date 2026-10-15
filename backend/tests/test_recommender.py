@@ -1,10 +1,6 @@
-from unittest.mock import MagicMock
-import pytest
 from backend.app.schemas.all_schemas import (
     ExerciseRecItem,
     FoodRecItem,
-    UserProfile,
-    UserGoal,
 )
 from backend.app.services.recommender_mock import get_exercise_recs, get_food_recs
 

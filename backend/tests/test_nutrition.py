@@ -1,4 +1,3 @@
-import pytest
 from backend.app.schemas.all_schemas import UserProfile, UserGoal
 from backend.app.services.nutrition import (
     calculate_bmr,

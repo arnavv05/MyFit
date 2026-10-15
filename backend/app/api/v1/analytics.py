@@ -26,10 +26,12 @@ router = APIRouter(prefix="/analytics", tags=["Analytics"])
 # Helpers: load recommender functions with graceful fallback
 # ---------------------------------------------------------------------------
 
+
 def _load_ml():
     """Try to import the real recommender package; return (forecast_fn, anomaly_fn) or Nones."""
     try:
         import recommender as _rec  # installed via pip install -e ml/
+
         return _rec.forecast_goal_date, _rec.detect_weight_anomalies
     except ImportError:
         # Try adding ml/ to path (dev mode)
@@ -38,9 +40,13 @@ def _load_ml():
             sys.path.insert(0, ml_path)
         try:
             import recommender as _rec  # type: ignore
+
             return _rec.forecast_goal_date, _rec.detect_weight_anomalies
         except Exception as exc:
-            logger.warning("ML package unavailable for analytics (%s). Skipping forecast/anomaly.", exc)
+            logger.warning(
+                "ML package unavailable for analytics (%s). Skipping forecast/anomaly.",
+                exc,
+            )
             return None, None
 
 
@@ -50,6 +56,7 @@ _forecast_fn, _anomaly_fn = _load_ml()
 # ---------------------------------------------------------------------------
 # Streak helper
 # ---------------------------------------------------------------------------
+
 
 def _compute_streak(log_dates: list[str]) -> int:
     """Count consecutive days ending on or before today."""
@@ -69,6 +76,7 @@ def _compute_streak(log_dates: list[str]) -> int:
 # ---------------------------------------------------------------------------
 # GET /analytics/me
 # ---------------------------------------------------------------------------
+
 
 @router.get(
     "/me",
@@ -99,7 +107,9 @@ async def get_user_analytics(
     total_kcal_out = sum(log.get("kcal_out", 0.0) for log in logs)
     total_workouts = sum(len(log.get("workouts", [])) for log in logs)
 
-    valid_sleep = [log["sleep_hours"] for log in logs if log.get("sleep_hours") is not None]
+    valid_sleep = [
+        log["sleep_hours"] for log in logs if log.get("sleep_hours") is not None
+    ]
     avg_sleep = round(sum(valid_sleep) / len(valid_sleep), 1) if valid_sleep else None
 
     valid_water = [log["water_ml"] for log in logs if log.get("water_ml") is not None]
@@ -145,7 +155,9 @@ async def get_user_analytics(
                 for a in raw_anomalies
             ]
         except Exception as exc:
-            logger.warning("detect_weight_anomalies failed for user %s: %s", user_id, exc)
+            logger.warning(
+                "detect_weight_anomalies failed for user %s: %s", user_id, exc
+            )
 
     return UserAnalyticsResponse(
         user_id=user_id,
@@ -166,6 +178,7 @@ async def get_user_analytics(
 # GET /analytics/population  (no auth required – public aggregate)
 # ---------------------------------------------------------------------------
 
+
 @router.get(
     "/population",
     response_model=PopulationAnalyticsResponse,
@@ -183,41 +196,51 @@ async def get_population_analytics(
     total_logs = await db["daily_logs"].count_documents({})
 
     # Aggregate averages
-    agg_result = await db["users"].aggregate([
-        {
-            "$group": {
-                "_id": None,
-                "avg_weight": {"$avg": "$profile.weight_kg"},
-                "avg_height": {"$avg": "$profile.height_cm"},
-                "avg_age": {"$avg": "$profile.age"},
-            }
-        }
-    ]).to_list(length=1)
+    agg_result = (
+        await db["users"]
+        .aggregate(
+            [
+                {
+                    "$group": {
+                        "_id": None,
+                        "avg_weight": {"$avg": "$profile.weight_kg"},
+                        "avg_height": {"$avg": "$profile.height_cm"},
+                        "avg_age": {"$avg": "$profile.age"},
+                    }
+                }
+            ]
+        )
+        .to_list(length=1)
+    )
     stats = agg_result[0] if agg_result else {}
 
     # Diet distribution
     diet_dist = {
         item["_id"]: item["count"]
-        for item in await db["users"].aggregate(
-            [{"$group": {"_id": "$profile.diet_type", "count": {"$sum": 1}}}]
-        ).to_list(length=10)
+        for item in await db["users"]
+        .aggregate([{"$group": {"_id": "$profile.diet_type", "count": {"$sum": 1}}}])
+        .to_list(length=10)
         if item.get("_id")
     }
 
     # Activity distribution
     activity_dist = {
         item["_id"]: item["count"]
-        for item in await db["users"].aggregate(
+        for item in await db["users"]
+        .aggregate(
             [{"$group": {"_id": "$profile.activity_level", "count": {"$sum": 1}}}]
-        ).to_list(length=20)
+        )
+        .to_list(length=20)
         if item.get("_id")
     }
 
     # Cluster distribution
     cluster_dist: dict[str, int] = {}
-    raw_clusters = await db["users"].aggregate(
-        [{"$group": {"_id": "$cluster_id", "count": {"$sum": 1}}}]
-    ).to_list(length=20)
+    raw_clusters = (
+        await db["users"]
+        .aggregate([{"$group": {"_id": "$cluster_id", "count": {"$sum": 1}}}])
+        .to_list(length=20)
+    )
     for item in raw_clusters:
         if item.get("_id") is not None:
             cluster_dist[str(item["_id"])] = item["count"]
@@ -225,24 +248,44 @@ async def get_population_analytics(
     # Popular exercises (top 5 by interaction count)
     pop_ex_pipeline = [
         {"$match": {"item_type": "exercise"}},
-        {"$group": {"_id": "$item_id", "count": {"$sum": 1}, "avg_rating": {"$avg": "$rating"}}},
+        {
+            "$group": {
+                "_id": "$item_id",
+                "count": {"$sum": 1},
+                "avg_rating": {"$avg": "$rating"},
+            }
+        },
         {"$sort": {"count": -1}},
         {"$limit": 5},
     ]
     popular_exercises = [
-        {"exercise_id": i["_id"], "interactions": i["count"], "avg_rating": round(i.get("avg_rating") or 0, 2)}
+        {
+            "exercise_id": i["_id"],
+            "interactions": i["count"],
+            "avg_rating": round(i.get("avg_rating") or 0, 2),
+        }
         for i in await db["interactions"].aggregate(pop_ex_pipeline).to_list(length=5)
     ]
 
     # Popular foods (top 5)
     pop_food_pipeline = [
         {"$match": {"item_type": "food"}},
-        {"$group": {"_id": "$item_id", "count": {"$sum": 1}, "avg_rating": {"$avg": "$rating"}}},
+        {
+            "$group": {
+                "_id": "$item_id",
+                "count": {"$sum": 1},
+                "avg_rating": {"$avg": "$rating"},
+            }
+        },
         {"$sort": {"count": -1}},
         {"$limit": 5},
     ]
     popular_foods = [
-        {"food_id": i["_id"], "interactions": i["count"], "avg_rating": round(i.get("avg_rating") or 0, 2)}
+        {
+            "food_id": i["_id"],
+            "interactions": i["count"],
+            "avg_rating": round(i.get("avg_rating") or 0, 2),
+        }
         for i in await db["interactions"].aggregate(pop_food_pipeline).to_list(length=5)
     ]
 

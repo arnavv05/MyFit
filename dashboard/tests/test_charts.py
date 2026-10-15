@@ -104,12 +104,80 @@ def test_create_population_clusters_bar():
     assert len(fig.data) > 0
 
 
+def test_create_weight_history_chart_with_goal():
+    history = [
+        {"date": "2026-10-01", "weight_kg": 75.0},
+        {"date": "2026-10-05", "weight_kg": 74.2},
+    ]
+    fig = create_weight_history_chart(history, goal_weight_kg=70.0)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 2  # logged weight + target goal line
+
+
+def test_create_sleep_water_chart():
+    from dashboard.charts import create_sleep_water_chart
+
+    user_data = {
+        "avg_sleep_hours": 7.8,
+        "avg_water_ml": 2800.0,
+        "streak": 5,
+        "total_days_logged": 5,
+    }
+    fig = create_sleep_water_chart(user_data)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 2
+
+
+def test_create_cluster_scatter():
+    import pandas as pd
+    from dashboard.charts import create_cluster_scatter
+
+    users_df = pd.DataFrame(
+        [
+            {
+                "_id": "usr_1",
+                "height_cm": 175,
+                "weight_kg": 70,
+                "cluster_id": "0",
+                "age": 25,
+            },
+            {
+                "_id": "usr_2",
+                "height_cm": 180,
+                "weight_kg": 80,
+                "cluster_id": "1",
+                "age": 30,
+            },
+        ]
+    )
+    fig = create_cluster_scatter(users_df)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 2
+
+
+def test_create_popular_foods_bar():
+    import pandas as pd
+    from dashboard.charts import create_popular_foods_bar
+
+    foods_df = pd.DataFrame(
+        [
+            {"name": "Oatmeal", "interaction_count": 25},
+            {"name": "Boiled Eggs", "interaction_count": 40},
+        ]
+    )
+    fig = create_popular_foods_bar(foods_df, top_n=2)
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) > 0
+
+
 def test_api_client_offline_fallback():
     # Calling without active server must gracefully fallback without crashing
     data, is_live = fetch_population_analytics(base_url="http://127.0.0.1:9999/api/v1")
     assert not is_live
     assert data["source"] == "offline_aggregates"
 
-    user_data, user_live = fetch_user_analytics(token="", base_url="http://127.0.0.1:9999/api/v1")
+    user_data, user_live = fetch_user_analytics(
+        token="", base_url="http://127.0.0.1:9999/api/v1"
+    )
     assert not user_live
     assert user_data["source"] == "offline_fallback"

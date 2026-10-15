@@ -53,7 +53,9 @@ def get_offline_user_analytics() -> dict[str, Any]:
     }
 
 
-def fetch_population_analytics(base_url: str = DEFAULT_API_BASE) -> tuple[dict[str, Any], bool]:
+def fetch_population_analytics(
+    base_url: str = DEFAULT_API_BASE,
+) -> tuple[dict[str, Any], bool]:
     """Fetch population analytics from the backend API, falling back to aggregate files on error."""
     # Why: A short timeout prevents Streamlit UI from hanging when the backend server is stopped.
     try:
@@ -68,12 +70,16 @@ def fetch_population_analytics(base_url: str = DEFAULT_API_BASE) -> tuple[dict[s
     return get_offline_population_analytics(), False
 
 
-def fetch_user_analytics(token: str, base_url: str = DEFAULT_API_BASE) -> tuple[dict[str, Any], bool]:
+def fetch_user_analytics(
+    token: str, base_url: str = DEFAULT_API_BASE
+) -> tuple[dict[str, Any], bool]:
     """Fetch personal analytics for an authenticated user, falling back to sample baseline on error."""
     if token:
         try:
             headers = {"Authorization": f"Bearer {token}"}
-            resp = requests.get(f"{base_url}/analytics/me", headers=headers, timeout=2.0)
+            resp = requests.get(
+                f"{base_url}/analytics/me", headers=headers, timeout=2.0
+            )
             if resp.status_code == 200:
                 data = resp.json()
                 data["source"] = "live_api"

@@ -20,6 +20,8 @@ htmlcov/
 dashboard/.venv/
 env/
 venv/
+**/test-results/
+.cache/
 
 # Operating system files
 .DS_Store

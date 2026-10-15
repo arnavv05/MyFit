@@ -67,9 +67,9 @@ def test_veg_user_never_receives_nonveg():
         recs = get_food_recs(user_id=uid, kcal_target=450.0, n=4, data_access=da)
         assert len(recs) == 4
         for item in recs:
-            assert item["food_id"] not in nonveg_food_ids, (
-                f"VIOLATION: Vegetarian user {uid} received nonveg food {item['food_id']} ({item['name']})"
-            )
+            assert (
+                item["food_id"] not in nonveg_food_ids
+            ), f"VIOLATION: Vegetarian user {uid} received nonveg food {item['food_id']} ({item['name']})"
 
 
 def test_injury_filtering():
@@ -97,9 +97,9 @@ def test_injury_filtering():
     for uid in knee_users:
         recs = get_exercise_recs(user_id=uid, n=4, data_access=da)
         for item in recs:
-            assert item["exercise_id"] not in knee_flagged_exercises, (
-                f"VIOLATION: Knee-injured user {uid} received contraindicated exercise {item['exercise_id']}"
-            )
+            assert (
+                item["exercise_id"] not in knee_flagged_exercises
+            ), f"VIOLATION: Knee-injured user {uid} received contraindicated exercise {item['exercise_id']}"
 
 
 def test_cold_start_new_user():
