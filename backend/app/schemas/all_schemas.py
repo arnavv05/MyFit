@@ -11,9 +11,16 @@ class UserProfile(BaseModel):
     gender: Literal["male", "female", "other"] = Field(..., description="Gender")
     height_cm: float = Field(..., gt=50, lt=300, description="Height in centimeters")
     weight_kg: float = Field(..., gt=20, lt=500, description="Weight in kilograms")
-    activity_level: Literal["sedentary", "lightly_active", "moderately_active", "very_active", "extra_active"] = Field(
-        ..., description="Activity level for TDEE calculation"
-    )
+    activity_level: Literal[
+        "sedentary",
+        "light",
+        "lightly_active",
+        "moderate",
+        "moderately_active",
+        "active",
+        "very_active",
+        "extra_active",
+    ] = Field(..., description="Activity level for TDEE calculation")
     diet_type: Literal["veg", "nonveg"] = Field(..., description="Dietary preference")
     injuries: list[str] = Field(default_factory=list, description="Injuries or physical limitations")
 
@@ -26,8 +33,8 @@ class UserGoal(BaseModel):
 class UserRegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6, description="Plaintext password, min 6 characters")
-    profile: UserProfile
-    goal: UserGoal
+    profile: UserProfile | None = None
+    goal: UserGoal | None = None
 
 
 class UserLoginRequest(BaseModel):
@@ -99,14 +106,19 @@ class FoodItem(BaseModel):
 class WorkoutLogEntry(BaseModel):
     exercise_id: str
     duration_min: float = Field(..., gt=0)
-    kcal_burned: float = Field(..., ge=0)
+    kcal_burned: float = Field(default=0.0, ge=0)
     rating: int | None = Field(default=None, ge=1, le=5)
 
 
 class MealLogEntry(BaseModel):
     food_id: str
     grams: float = Field(..., gt=0)
-    kcal: float = Field(..., ge=0)
+    kcal: float = Field(default=0.0, ge=0)
+
+
+class CatalogResponse(BaseModel):
+    exercises: list[ExerciseItem] = Field(default_factory=list)
+    foods: list[FoodItem] = Field(default_factory=list)
 
 
 class DailyLogCreateRequest(BaseModel):

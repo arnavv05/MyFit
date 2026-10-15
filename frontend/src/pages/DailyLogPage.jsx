@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { api } from '../api'
+import { api, computeKcalForLog } from '../api'
+import { useAuth } from '../hooks/useAuth'
 import { Alert } from '../components/Alert'
 import { Badge } from '../components/Badge'
 
@@ -9,6 +10,7 @@ import { Badge } from '../components/Badge'
  * Submitted through POST /logs. Rolled-up calories are displayed from backend response.
  */
 export function DailyLogPage() {
+  const { user } = useAuth()
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0])
 
   // Log state
@@ -120,21 +122,26 @@ export function DailyLogPage() {
 
     try {
       setIsSaving(true)
-      const payload = {
+      const rawPayload = {
         date: selectedDate,
         weight_kg: weightKg ? Number(weightKg) : undefined,
         sleep_hours: sleepHours ? Number(sleepHours) : undefined,
         water_ml: waterMl ? Number(waterMl) : undefined,
         workouts: workouts.map((w) => ({
           exercise_id: w.exercise_id,
-          duration_min: w.duration_min,
+          duration_min: Number(w.duration_min),
+          kcal_burned: w.kcal_burned,
           rating: w.rating,
         })),
         meals: meals.map((m) => ({
           food_id: m.food_id,
-          grams: m.grams,
+          grams: Number(m.grams),
+          kcal: m.kcal,
         })),
       }
+
+      const activeWeight = weightKg ? Number(weightKg) : (user?.profile?.weight_kg || 70)
+      const payload = computeKcalForLog(rawPayload, activeWeight, catalog.exercises)
 
       const saved = await api.logs.saveLog(payload)
       setServerKcalIn(saved.kcal_in ?? null)

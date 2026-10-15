@@ -56,9 +56,12 @@ export function OnboardingPage({ onNavigate }) {
   const activityMultipliers = {
     sedentary: 1.2,
     light: 1.375,
+    lightly_active: 1.375,
     moderate: 1.55,
+    moderately_active: 1.55,
     active: 1.725,
-    very_active: 1.9,
+    very_active: 1.725,
+    extra_active: 1.9,
   }
   const tdee = Math.round(bmr * (activityMultipliers[activityLevel] || 1.55))
 
@@ -203,10 +206,10 @@ export function OnboardingPage({ onNavigate }) {
                 onChange={(e) => setActivityLevel(e.target.value)}
               >
                 <option value="sedentary">Sedentary (desk job, minimal exercise)</option>
-                <option value="light">Light (exercise 1-3 days/week)</option>
-                <option value="moderate">Moderate (exercise 3-5 days/week)</option>
-                <option value="active">Active (exercise 6-7 days/week)</option>
-                <option value="very_active">Very Active (heavy physical job/training)</option>
+                <option value="lightly_active">Light (exercise 1-3 days/week)</option>
+                <option value="moderately_active">Moderate (exercise 3-5 days/week)</option>
+                <option value="very_active">Very Active (exercise 6-7 days/week)</option>
+                <option value="extra_active">Extra Active (heavy physical job/training)</option>
               </select>
             </div>
 

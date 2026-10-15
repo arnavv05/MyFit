@@ -208,7 +208,7 @@ export function ProgressPage() {
 
               {/* Data points */}
               {weightTrend.map((item, idx) => {
-                const x = (idx / (weightTrend.length - 1)) * 480 + 10
+                const x = weightTrend.length > 1 ? (idx / (weightTrend.length - 1)) * 480 + 10 : 250
                 const y = 180 - ((item.weight_kg - minWeight) / weightRange) * 160
                 return (
                   <g key={item.date}>

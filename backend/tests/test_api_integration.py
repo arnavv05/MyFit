@@ -72,7 +72,8 @@ class InMemoryAsyncDatabase:
                     new_item = {**filter_dict, **update_dict.get("$set", {})}
                     self.data.append(new_item)
 
-            def find(self, filter_dict: dict):
+            def find(self, filter_dict: dict = None):
+                filter_dict = filter_dict or {}
                 matched = []
                 for item in self.data:
                     match = True
@@ -258,3 +259,37 @@ async def test_get_analytics(test_app, auth_headers):
         pop_resp = await ac.get("/api/v1/analytics/population")
         assert pop_resp.status_code == 200
         assert "total_users" in pop_resp.json()
+
+
+@pytest.mark.asyncio
+async def test_register_minimal_and_login(test_app):
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+        reg_payload = {
+            "email": "newuser@example.com",
+            "password": "securepassword123",
+        }
+        reg_resp = await ac.post("/api/v1/auth/register", json=reg_payload)
+        assert reg_resp.status_code == 201
+        data = reg_resp.json()
+        assert data["email"] == "newuser@example.com"
+        assert data["profile"]["activity_level"] == "moderately_active"
+
+        # Login
+        login_resp = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "newuser@example.com", "password": "securepassword123"},
+        )
+        assert login_resp.status_code == 200
+        assert "access_token" in login_resp.json()
+
+
+@pytest.mark.asyncio
+async def test_get_catalog(test_app):
+    async with AsyncClient(transport=ASGITransport(app=test_app), base_url="http://test") as ac:
+        resp = await ac.get("/api/v1/catalog")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "exercises" in data
+        assert "foods" in data
+        assert len(data["exercises"]) >= 1
+

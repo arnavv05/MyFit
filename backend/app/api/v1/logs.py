@@ -18,10 +18,29 @@ async def create_or_update_daily_log(
     Calculates kcal_in from meals and kcal_out from workouts.
     """
     user_id = current_user["_id"]
+    user_weight = (
+        payload.weight_kg
+        or current_user.get("profile", {}).get("weight_kg")
+        or 70.0
+    )
+
+    workouts_data = []
+    for w in payload.workouts:
+        w_dict = w.model_dump()
+        if not w_dict.get("kcal_burned") or w_dict["kcal_burned"] <= 0:
+            w_dict["kcal_burned"] = round(5.0 * user_weight * (w.duration_min / 60.0), 2)
+        workouts_data.append(w_dict)
+
+    meals_data = []
+    for m in payload.meals:
+        m_dict = m.model_dump()
+        if not m_dict.get("kcal") or m_dict["kcal"] <= 0:
+            m_dict["kcal"] = round(m.grams * 1.5, 2)
+        meals_data.append(m_dict)
 
     # Calculate kcal_in and kcal_out rollups
-    kcal_in = sum(m.kcal for m in payload.meals)
-    kcal_out = sum(w.kcal_burned for w in payload.workouts)
+    kcal_in = sum(m["kcal"] for m in meals_data)
+    kcal_out = sum(w["kcal_burned"] for w in workouts_data)
 
     existing_log = await db["daily_logs"].find_one({"user_id": user_id, "date": payload.date})
 
@@ -31,8 +50,8 @@ async def create_or_update_daily_log(
         "weight_kg": payload.weight_kg,
         "sleep_hours": payload.sleep_hours,
         "water_ml": payload.water_ml,
-        "workouts": [w.model_dump() for w in payload.workouts],
-        "meals": [m.model_dump() for m in payload.meals],
+        "workouts": workouts_data,
+        "meals": meals_data,
         "kcal_in": round(kcal_in, 2),
         "kcal_out": round(kcal_out, 2),
     }

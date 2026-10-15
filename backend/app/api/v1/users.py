@@ -24,7 +24,14 @@ async def update_current_user_profile(
     """Update profile and/or goal for current authenticated user."""
     update_data = {}
     if payload.profile is not None:
-        update_data["profile"] = payload.profile.model_dump()
+        p_dict = payload.profile.model_dump()
+        norm_map = {
+            "light": "lightly_active",
+            "moderate": "moderately_active",
+            "active": "very_active",
+        }
+        p_dict["activity_level"] = norm_map.get(p_dict["activity_level"], p_dict["activity_level"])
+        update_data["profile"] = p_dict
     if payload.goal is not None:
         update_data["goal"] = payload.goal.model_dump()
 

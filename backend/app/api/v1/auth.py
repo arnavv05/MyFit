@@ -30,12 +30,43 @@ async def register_user(
     user_id = str(uuid.uuid4())
     now_iso = datetime.now(timezone.utc).isoformat()
 
+    # Normalization helper for activity levels
+    norm_activity = {
+        "light": "lightly_active",
+        "moderate": "moderately_active",
+        "active": "very_active",
+    }
+
+    if payload.profile is not None:
+        profile_dict = payload.profile.model_dump()
+        profile_dict["activity_level"] = norm_activity.get(
+            profile_dict["activity_level"], profile_dict["activity_level"]
+        )
+    else:
+        profile_dict = {
+            "age": 21,
+            "gender": "male",
+            "height_cm": 175.0,
+            "weight_kg": 72.0,
+            "activity_level": "moderately_active",
+            "diet_type": "veg",
+            "injuries": [],
+        }
+
+    if payload.goal is not None:
+        goal_dict = payload.goal.model_dump()
+    else:
+        goal_dict = {
+            "target_weight_kg": 68.0,
+            "target_date": "2026-12-31",
+        }
+
     doc = {
         "_id": user_id,
         "email": payload.email,
         "password_hash": get_password_hash(payload.password),
-        "profile": payload.profile.model_dump(),
-        "goal": payload.goal.model_dump(),
+        "profile": profile_dict,
+        "goal": goal_dict,
         "cluster_id": None,
         "created_at": now_iso,
     }
@@ -45,8 +76,8 @@ async def register_user(
     return UserResponse(
         _id=user_id,
         email=payload.email,
-        profile=payload.profile,
-        goal=payload.goal,
+        profile=profile_dict,
+        goal=goal_dict,
         cluster_id=None,
         created_at=now_iso,
     )

@@ -108,7 +108,11 @@ export async function request(endpoint, options = {}) {
     if (err instanceof ApiError) {
       throw err
     }
-    throw new ApiError(err.message || 'Network error connecting to backend', 500)
+    const msg =
+      err.message === 'Failed to fetch' || err.name === 'TypeError'
+        ? `Cannot connect to backend at ${BASE_URL}. Ensure FastAPI is running on port 8000, or set VITE_USE_MOCK=true in frontend/.env`
+        : err.message || 'Network error connecting to backend'
+    throw new ApiError(msg, 500)
   }
 }
 

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: myfitness-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=myfitness
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: myfitness-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB_NAME=myfitness
+      - SECRET_KEY=supersecretkey_change_in_production_jwt_secret_min_32_chars
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:

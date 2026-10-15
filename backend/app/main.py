@@ -9,6 +9,7 @@ from backend.app.api.v1.logs import router as logs_router
 from backend.app.api.v1.recommend import router as recommend_router
 from backend.app.api.v1.feedback import router as feedback_router
 from backend.app.api.v1.analytics import router as analytics_router
+from backend.app.api.v1.catalog import router as catalog_router
 
 
 @asynccontextmanager
@@ -45,6 +46,8 @@ app.include_router(logs_router, prefix=settings.API_V1_PREFIX)
 app.include_router(recommend_router, prefix=settings.API_V1_PREFIX)
 app.include_router(feedback_router, prefix=settings.API_V1_PREFIX)
 app.include_router(analytics_router, prefix=settings.API_V1_PREFIX)
+app.include_router(catalog_router, prefix=settings.API_V1_PREFIX)
+app.include_router(catalog_router)
 
 
 @app.get("/health", tags=["Health"])
