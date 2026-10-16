@@ -194,11 +194,13 @@ def test_api_contract_return_shapes():
         assert set(item.keys()) == {
             "food_id",
             "name",
+            "diet_type",
             "grams",
             "kcal",
             "macros",
             "reason",
         }
+        assert item["diet_type"] in ("veg", "nonveg")
         assert isinstance(item["food_id"], str)
         assert isinstance(item["name"], str)
         assert isinstance(item["grams"], (float, int))

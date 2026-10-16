@@ -68,12 +68,12 @@ function MainAppContent() {
     <>
       <Navbar currentTab={currentPage} onSelectTab={navigateTo} />
       <main style={{ paddingBottom: '3rem' }}>
-        {currentPage === 'daily-log' && <DailyLogPage />}
+        {currentPage === 'daily-log' && <DailyLogPage onNavigate={navigateTo} />}
         {currentPage === 'recommendations' && <RecommendationsPage />}
-        {currentPage === 'progress' && <ProgressPage />}
+        {currentPage === 'progress' && <ProgressPage onNavigate={navigateTo} />}
         {currentPage === 'onboarding' && <OnboardingPage onNavigate={navigateTo} />}
-        {currentPage === 'login' && <DailyLogPage />}
-        {currentPage === 'register' && <DailyLogPage />}
+        {currentPage === 'login' && <DailyLogPage onNavigate={navigateTo} />}
+        {currentPage === 'register' && <DailyLogPage onNavigate={navigateTo} />}
       </main>
     </>
   )

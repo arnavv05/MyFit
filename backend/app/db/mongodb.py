@@ -2,6 +2,14 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from backend.app.core.config import settings
 
 
+try:
+    import certifi
+
+    _CA_FILE = certifi.where()
+except Exception:
+    _CA_FILE = None
+
+
 class MongoDBManager:
     """Manages Async Motor MongoDB client and database connections."""
 
@@ -14,7 +22,8 @@ db_manager = MongoDBManager()
 
 async def connect_to_mongo() -> None:
     """Initialize MongoDB client and connect to database."""
-    db_manager.client = AsyncIOMotorClient(settings.MONGODB_URI)
+    kwargs = {"tlsCAFile": _CA_FILE} if _CA_FILE else {}
+    db_manager.client = AsyncIOMotorClient(settings.MONGODB_URI, **kwargs)
     db_manager.db = db_manager.client[settings.MONGODB_DB_NAME]
     await init_db_indexes(db_manager.db)
 

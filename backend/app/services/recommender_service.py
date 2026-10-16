@@ -112,33 +112,62 @@ class RecommenderService:
         user_id: str,
         n: int = 3,
         target_burn_kcal: float = 350.0,
+        user_dict: dict | None = None,
+        date: str | None = None,
     ) -> list[ExerciseRecItem]:
         """Get exercise recommendations.
 
-        Passes `target_burn_kcal` to the real package as documented in ml/README.md.
-        Mock ignores this parameter.
+        Passes user context and date to the real package for personalized cold-start and variety.
         """
         if self._is_mock:
             raw = self._engine.get_exercise_recs(user_id=user_id, n=n)
         else:
-            # Real package supports target_burn_kcal kwarg
             try:
                 raw = self._engine.get_exercise_recs(
-                    user_id=user_id, n=n, target_burn_kcal=target_burn_kcal
+                    user_id=user_id,
+                    n=n,
+                    target_burn_kcal=target_burn_kcal,
+                    user_dict=user_dict,
+                    date=date,
                 )
             except TypeError:
-                # Older build without target_burn_kcal param
-                raw = self._engine.get_exercise_recs(user_id=user_id, n=n)
+                try:
+                    raw = self._engine.get_exercise_recs(
+                        user_id=user_id, n=n, target_burn_kcal=target_burn_kcal
+                    )
+                except TypeError:
+                    raw = self._engine.get_exercise_recs(user_id=user_id, n=n)
         return [
             item if isinstance(item, ExerciseRecItem) else ExerciseRecItem(**item)
             for item in raw
         ]
 
     def get_food_recs(
-        self, user_id: str, kcal_target: float, n: int = 3
+        self,
+        user_id: str,
+        kcal_target: float,
+        n: int = 3,
+        user_dict: dict | None = None,
+        date: str | None = None,
     ) -> list[FoodRecItem]:
         """Get food recommendations calibrated to `kcal_target`."""
-        raw = self._engine.get_food_recs(user_id=user_id, kcal_target=kcal_target, n=n)
+        if self._is_mock:
+            raw = self._engine.get_food_recs(
+                user_id=user_id, kcal_target=kcal_target, n=n
+            )
+        else:
+            try:
+                raw = self._engine.get_food_recs(
+                    user_id=user_id,
+                    kcal_target=kcal_target,
+                    n=n,
+                    user_dict=user_dict,
+                    date=date,
+                )
+            except TypeError:
+                raw = self._engine.get_food_recs(
+                    user_id=user_id, kcal_target=kcal_target, n=n
+                )
         return [
             item if isinstance(item, FoodRecItem) else FoodRecItem(**item)
             for item in raw

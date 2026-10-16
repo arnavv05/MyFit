@@ -48,6 +48,11 @@ class MockDataAccess(BaseDataAccess):
     def get_interactions(self, item_type: str | None = None) -> pd.DataFrame:
         return pd.DataFrame()
 
+    def get_user_interactions(
+        self, user_id: str, item_type: str | None = None
+    ) -> pd.DataFrame:
+        return pd.DataFrame()
+
 
 def test_forecast_downward_trend_success():
     """Verify that a steady downward trend forecasts a realistic future goal date."""

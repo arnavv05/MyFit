@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     ]
 
     # Rate-limiting (requests per window)
-    AUTH_RATE_LIMIT_REQUESTS: int = 10
+    AUTH_RATE_LIMIT_REQUESTS: int = 60
     AUTH_RATE_LIMIT_SECONDS: int = 60
 
     model_config = SettingsConfigDict(

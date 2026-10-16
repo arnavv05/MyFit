@@ -446,12 +446,16 @@ async def seed_csv_interactions(db) -> int:
 
 async def seed_data() -> None:
     """Main entry point: connect → index → seed all collections → close."""
-    logger.info(
-        "Connecting to MongoDB: %s / db=%s",
-        settings.MONGODB_URI,
-        settings.MONGODB_DB_NAME,
-    )
-    client = AsyncIOMotorClient(settings.MONGODB_URI)
+    logger.info("Connecting to MongoDB db=%s", settings.MONGODB_DB_NAME)
+    try:
+        import certifi
+
+        ca_file = certifi.where()
+    except Exception:
+        ca_file = None
+
+    kwargs = {"tlsCAFile": ca_file} if ca_file else {}
+    client = AsyncIOMotorClient(settings.MONGODB_URI, **kwargs)
     db = client[settings.MONGODB_DB_NAME]
 
     try:

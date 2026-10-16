@@ -44,6 +44,7 @@ class ExerciseRecommendation(BaseModel):
 class FoodRecommendation(BaseModel):
     food_id: str
     name: str
+    diet_type: str = "veg"
     grams: float = Field(gt=0.0)
     kcal: float = Field(ge=0.0)
     macros: MacroBreakdown
@@ -55,6 +56,8 @@ def get_exercise_recs(
     n: int = 4,
     data_access: BaseDataAccess | None = None,
     target_burn_kcal: float = 350.0,
+    user_dict: dict[str, Any] | None = None,
+    date: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return top-N exercise recommendations matching the shared API contract.
 
@@ -63,6 +66,8 @@ def get_exercise_recs(
         n: Number of recommendations to return (default 4).
         data_access: Optional custom DataAccess instance (default uses configured factory).
         target_burn_kcal: Optional daily workout burn target in kcal (default 350.0).
+        user_dict: Optional user context dict from MongoDB or auth session.
+        date: Optional date string for daily variety rotation.
 
     Returns:
         List of dicts: [{exercise_id, name, duration_min, est_kcal, reason}]
@@ -72,6 +77,8 @@ def get_exercise_recs(
         n=n,
         data_access=data_access,
         target_burn_kcal=target_burn_kcal,
+        user_dict=user_dict,
+        date=date,
     )
     # Validate each item through Pydantic model and return as JSON-serializable plain dict
     validated = [ExerciseRecommendation(**item).model_dump() for item in raw_recs]
@@ -83,6 +90,8 @@ def get_food_recs(
     kcal_target: float = 400.0,
     n: int = 3,
     data_access: BaseDataAccess | None = None,
+    user_dict: dict[str, Any] | None = None,
+    date: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return top-N food recommendations matching the shared API contract.
 
@@ -91,15 +100,19 @@ def get_food_recs(
         kcal_target: Daily or post-workout calorie replenishment target.
         n: Number of food recommendations to return (default 3).
         data_access: Optional custom DataAccess instance.
+        user_dict: Optional user context dict from MongoDB or auth session.
+        date: Optional date string for daily variety rotation.
 
     Returns:
-        List of dicts: [{food_id, name, grams, kcal, macros: {...}, reason}]
+        List of dicts: [{food_id, name, diet_type, grams, kcal, macros: {...}, reason}]
     """
     raw_recs = recommend_foods_for_user(
         user_id=user_id,
         kcal_target=kcal_target,
         n=n,
         data_access=data_access,
+        user_dict=user_dict,
+        date=date,
     )
     # Validate each item through Pydantic model and return as JSON-serializable plain dict
     validated = [FoodRecommendation(**item).model_dump() for item in raw_recs]

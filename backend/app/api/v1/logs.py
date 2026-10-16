@@ -68,6 +68,31 @@ async def create_or_update_daily_log(
         doc_data["_id"] = log_id
         await db["daily_logs"].insert_one(doc_data)
 
+    # If any workout has a rating, persist it to interactions for recommender adaptation
+    from datetime import datetime, timezone
+
+    for w in workouts_data:
+        if w.get("rating") is not None:
+            await db["interactions"].update_one(
+                {
+                    "user_id": user_id,
+                    "item_type": "exercise",
+                    "item_id": w["exercise_id"],
+                },
+                {
+                    "$set": {
+                        "user_id": user_id,
+                        "item_type": "exercise",
+                        "item_id": w["exercise_id"],
+                        "rating": int(w["rating"]),
+                        "implicit_score": float(w["rating"]),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                    "$setOnInsert": {"_id": str(uuid.uuid4())},
+                },
+                upsert=True,
+            )
+
     return DailyLogResponse(**doc_data)
 
 

@@ -9,7 +9,7 @@ import { Badge } from '../components/Badge'
  * Logs dynamic biometric measurements, workouts, and meals.
  * Submitted through POST /logs. Rolled-up calories are displayed from backend response.
  */
-export function DailyLogPage() {
+export function DailyLogPage({ onNavigate }) {
   const { user } = useAuth()
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0])
 
@@ -161,7 +161,11 @@ export function DailyLogPage() {
       const saved = await api.logs.saveLog(payload)
       setServerKcalIn(saved.kcal_in ?? null)
       setServerKcalOut(saved.kcal_out ?? null)
-      setStatusMsg({ type: 'success', text: `Log for ${selectedDate} saved successfully!` })
+      setStatusMsg({
+        type: 'success',
+        text: `Log for ${selectedDate} saved successfully! In: +${saved.kcal_in} kcal | Out: -${saved.kcal_out} kcal.`,
+      })
+      await fetchLogForDate(selectedDate)
     } catch (err) {
       setStatusMsg({ type: 'error', text: err.message || 'Failed to save log.' })
     } finally {
@@ -551,9 +555,18 @@ export function DailyLogPage() {
         </div>
 
         {/* Submit Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          {statusMsg.type === 'success' && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => (onNavigate ? onNavigate('progress') : (window.location.hash = '#/progress'))}
+            >
+              View Updated Progress &rarr;
+            </button>
+          )}
           <button type="submit" className="btn-primary" disabled={isSaving || isLoading}>
-            {isSaving ? 'Submitting to Backend...' : isLoading ? 'Loading...' : 'Save Today\'s Log'}
+            {isSaving ? 'Submitting to Backend...' : isLoading ? 'Loading...' : "Save Today's Log"}
           </button>
         </div>
       </form>

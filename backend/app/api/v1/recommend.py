@@ -11,6 +11,7 @@ from backend.app.api.deps import get_current_user
 from backend.app.db.mongodb import get_database
 from backend.app.schemas.all_schemas import (
     ExerciseRecItem,
+    FoodMacros,
     FoodRecItem,
     UserProfile,
     UserGoal,
@@ -85,7 +86,11 @@ async def recommend_exercises(
         target_burn_kcal = 350.0
 
     recs = recommender_service.get_exercise_recs(
-        user_id=user_id, n=limit, target_burn_kcal=target_burn_kcal
+        user_id=user_id,
+        n=limit,
+        target_burn_kcal=target_burn_kcal,
+        user_dict=current_user,
+        date=date,
     )
 
     # Strict Safety Filter: ensure no exercise flagged for the user's injuries is recommended
@@ -173,7 +178,11 @@ async def recommend_foods(
     kcal_target = calculate_daily_calorie_target(profile, goal)
 
     recs = recommender_service.get_food_recs(
-        user_id=user_id, kcal_target=kcal_target, n=limit
+        user_id=user_id,
+        kcal_target=kcal_target,
+        n=limit,
+        user_dict=current_user,
+        date=date,
     )
 
     # Strict Safety Filter: ensure veg user only receives veg-safe food items
@@ -182,6 +191,34 @@ async def recommend_foods(
         catalog_foods = await db["foods"].find({}).to_list(length=200)
         food_diet_map = {f["_id"]: f.get("diet_type", "veg") for f in catalog_foods}
         filtered = [r for r in recs if food_diet_map.get(r.food_id, "veg") == "veg"]
+        if len(filtered) < len(recs):
+            for f in catalog_foods:
+                if len(filtered) >= limit:
+                    break
+                if f.get("diet_type") == "veg" and not any(
+                    r.food_id == f["_id"] for r in filtered
+                ):
+                    grams = 150.0
+                    kcal_100g = max(float(f.get("kcal_per_100g", 100)), 20.0)
+                    factor = grams / 100.0
+                    filtered.append(
+                        FoodRecItem(
+                            food_id=f["_id"],
+                            name=f["name"],
+                            diet_type="veg",
+                            grams=grams,
+                            kcal=round(kcal_100g * factor, 1),
+                            macros=FoodMacros(
+                                protein_g=round(
+                                    float(f.get("protein_g", 0)) * factor, 1
+                                ),
+                                carbs_g=round(float(f.get("carbs_g", 0)) * factor, 1),
+                                fat_g=round(float(f.get("fat_g", 0)) * factor, 1),
+                                fiber_g=round(float(f.get("fiber_g", 0)) * factor, 1),
+                            ),
+                            reason="Wholesome vegetarian choice supporting your daily target",
+                        )
+                    )
         recs = filtered
 
     await _store_recommendation(db, user_id, "food", recs)

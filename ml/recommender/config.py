@@ -4,6 +4,7 @@ Handles directory paths, random seeds, model versioning, and environment variabl
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Project root resolution (ml is at <root>/ml)
 PACKAGE_ROOT = Path(__file__).resolve().parent
@@ -11,6 +12,11 @@ ML_ROOT = PACKAGE_ROOT.parent
 PROJECT_ROOT = ML_ROOT.parent
 DATA_DIR = PROJECT_ROOT / "data"
 MODELS_DIR = ML_ROOT / "models"
+
+# Load root .env if present
+env_path = PROJECT_ROOT / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
 
 # Ensure models directory exists
 

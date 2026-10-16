@@ -23,29 +23,6 @@ function computeStreak(logs) {
   return streak
 }
 
-/**
- * Estimates daily calorie target (TDEE) from user profile.
- * Why: backend doesn't return a calorie_target field; we compute it here.
- * Uses Mifflin-St Jeor BMR × activity multiplier, matching docs/decisions.md.
- * @param {object} profile
- * @returns {number}
- */
-function estimateTDEE(profile) {
-  if (!profile) return 2000
-  const { weight_kg, height_cm, age, gender, activity_level } = profile
-  const bmr =
-    gender === 'female'
-      ? 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
-      : 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
-  const multipliers = {
-    sedentary: 1.2,
-    lightly_active: 1.375,
-    moderately_active: 1.55,
-    very_active: 1.725,
-    extra_active: 1.9,
-  }
-  return Math.round(bmr * (multipliers[activity_level] ?? 1.55))
-}
 
 /**
  * ProgressPage:
@@ -54,32 +31,56 @@ function estimateTDEE(profile) {
  * - Calories consumed (in) vs calories burned (out)
  * - Sleep hours and hydration consistency
  */
-export function ProgressPage() {
+export function ProgressPage({ onNavigate }) {
   const { user } = useAuth()
   const [analytics, setAnalytics] = useState(null)
   const [streak, setStreak] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true)
+      const [data, logs] = await Promise.all([
+        api.analytics.getMe(),
+        api.logs.getLogs(),
+      ])
+      setAnalytics(data)
+      setStreak(data.current_streak_days ?? data.streak ?? computeStreak(logs))
+    } catch (err) {
+      setError(err.message || 'Failed to fetch personal progress analytics.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    async function loadAnalytics() {
+    let ignore = false
+    async function fetchData() {
       try {
         const [data, logs] = await Promise.all([
           api.analytics.getMe(),
           api.logs.getLogs(),
         ])
-        setAnalytics(data)
-        setStreak(data.streak ?? computeStreak(logs))
+        if (!ignore) {
+          setAnalytics(data)
+          setStreak(data.current_streak_days ?? data.streak ?? computeStreak(logs))
+        }
       } catch (err) {
-        setError(err.message || 'Failed to fetch personal progress analytics.')
+        if (!ignore) {
+          setError(err.message || 'Failed to fetch personal progress analytics.')
+        }
       } finally {
-        setLoading(false)
+        if (!ignore) setLoading(false)
       }
     }
-    loadAnalytics()
+    fetchData()
+    return () => {
+      ignore = true
+    }
   }, [])
 
-  if (loading) {
+  if (loading && !analytics) {
     return (
       <div className="container" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
         <p>Loading analytics data...</p>
@@ -88,9 +89,7 @@ export function ProgressPage() {
   }
 
   const targetWeight = user?.goal?.target_weight_kg || 69.0
-  // Real backend returns weight_history[{date, weight_kg}] (not weight_trend)
   const weightTrend = analytics?.weight_history || []
-  const calorieTarget = estimateTDEE(user?.profile)
   const weightChange =
     weightTrend.length >= 2
       ? +(weightTrend[weightTrend.length - 1].weight_kg - weightTrend[0].weight_kg).toFixed(1)
@@ -102,11 +101,38 @@ export function ProgressPage() {
   const maxWeight = Math.max(...weights, targetWeight) + 1
   const weightRange = maxWeight - minWeight || 1
 
+  const activeStreak = analytics?.current_streak_days ?? streak
+  const bestStreak = analytics?.best_streak_days ?? activeStreak
+  const goalProgress = analytics?.goal_progress_pct ?? 0.0
+
   return (
     <div className="container">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ marginBottom: '0.25rem' }}>Personal Progress &amp; Analytics</h1>
-        <p>Track your biometric trajectory against your target fitness milestones.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ marginBottom: '0.25rem' }}>Personal Progress &amp; Analytics</h1>
+          <p>Track your biometric trajectory against your target fitness milestones.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {onNavigate && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => onNavigate('daily-log')}
+              style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem' }}
+            >
+              + Log Today
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={loadAnalytics}
+            disabled={loading}
+            style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem' }}
+          >
+            🔄 {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       <Alert type="error" message={error} onClose={() => setError('')} />
@@ -122,15 +148,13 @@ export function ProgressPage() {
       >
         <div className="metric-box">
           <div className="metric-label">Active Streak</div>
-          {/* streak computed client-side from GET /logs consecutive days */}
           <div className="metric-value" style={{ color: 'var(--status-warning)' }}>
-            🔥 {streak} days
+            🔥 {activeStreak}d {bestStreak > activeStreak && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>(Best: {bestStreak}d)</span>}
           </div>
         </div>
 
         <div className="metric-box">
           <div className="metric-label">Workouts Logged</div>
-          {/* backend field: total_workouts_completed */}
           <div className="metric-value" style={{ color: 'var(--accent-primary)' }}>
             💪 {analytics?.total_workouts_completed ?? 0}
           </div>
@@ -138,17 +162,15 @@ export function ProgressPage() {
 
         <div className="metric-box">
           <div className="metric-label">Weight Delta</div>
-          {/* derived from first vs last entry in weight_history */}
           <div className="metric-value" style={{ color: 'var(--accent-cyan)' }}>
             📉 {weightChange > 0 ? `+${weightChange}` : weightChange} kg
           </div>
         </div>
 
         <div className="metric-box">
-          <div className="metric-label">Daily Calorie Target</div>
-          {/* estimated TDEE from user profile; backend has no calorie_target field */}
+          <div className="metric-label">Goal Progress</div>
           <div className="metric-value" style={{ color: 'var(--accent-secondary)' }}>
-            🎯 {calorieTarget} kcal
+            🎯 {goalProgress}%
           </div>
         </div>
       </div>
@@ -230,45 +252,80 @@ export function ProgressPage() {
           </div>
         </div>
 
-        {/* Chart 2: Calorie Totals (backend returns totals, not per-day breakdown) */}
+        {/* Chart 2: Daily Calories In vs Out */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.15rem' }}>Cumulative Calories</h2>
+            <h2 style={{ fontSize: '1.15rem' }}>Daily Calories (In vs Out)</h2>
             <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.8rem' }}>
               <span style={{ color: 'var(--accent-secondary)' }}>■ In (Meals)</span>
               <span style={{ color: 'var(--accent-primary)' }}>■ Out (Burned)</span>
             </div>
           </div>
 
-          {/* Single pair of bars showing total_kcal_in vs total_kcal_out */}
-          <div style={{ height: '220px', display: 'flex', alignItems: 'flex-end', gap: '2rem', justifyContent: 'center', paddingBottom: '0.5rem' }}>
+          <div style={{ height: '220px', display: 'flex', alignItems: 'flex-end', gap: '0.75rem', justifyContent: 'center', overflowX: 'auto', paddingBottom: '0.5rem' }}>
             {(() => {
-              const maxKcal = Math.max(analytics?.total_kcal_in ?? 0, analytics?.total_kcal_out ?? 0, 1)
-              const inH = Math.min(((analytics?.total_kcal_in ?? 0) / maxKcal) * 180, 180)
-              const outH = Math.min(((analytics?.total_kcal_out ?? 0) / maxKcal) * 180, 180)
-              return (
-                <>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                    <div
-                      title={`Total Kcal In: ${analytics?.total_kcal_in ?? 0}`}
-                      style={{ width: '48px', height: `${inH}px`, background: 'linear-gradient(180deg, var(--accent-secondary), #4338ca)', borderRadius: '4px 4px 0 0' }}
-                    />
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{analytics?.total_kcal_in ?? 0} kcal in</span>
+              const dailyCalories = analytics?.calories_in_vs_out || []
+              if (dailyCalories.length === 0) {
+                const maxKcal = Math.max(analytics?.total_kcal_in ?? 0, analytics?.total_kcal_out ?? 0, 1)
+                const inH = Math.min(((analytics?.total_kcal_in ?? 0) / maxKcal) * 160, 160)
+                const outH = Math.min(((analytics?.total_kcal_out ?? 0) / maxKcal) * 160, 160)
+                return (
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                      <div
+                        title={`Total In: ${analytics?.total_kcal_in ?? 0}`}
+                        style={{ width: '40px', height: `${inH}px`, background: 'linear-gradient(180deg, var(--accent-secondary), #4338ca)', borderRadius: '4px 4px 0 0' }}
+                      />
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{analytics?.total_kcal_in ?? 0} in</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                      <div
+                        title={`Total Out: ${analytics?.total_kcal_out ?? 0}`}
+                        style={{ width: '40px', height: `${outH}px`, background: 'linear-gradient(180deg, var(--accent-primary), #047857)', borderRadius: '4px 4px 0 0' }}
+                      />
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{analytics?.total_kcal_out ?? 0} out</span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                    <div
-                      title={`Total Kcal Out: ${analytics?.total_kcal_out ?? 0}`}
-                      style={{ width: '48px', height: `${outH}px`, background: 'linear-gradient(180deg, var(--accent-primary), #047857)', borderRadius: '4px 4px 0 0' }}
-                    />
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{analytics?.total_kcal_out ?? 0} kcal out</span>
-                  </div>
-                </>
+                )
+              }
+              const displayList = dailyCalories.slice(-7)
+              const maxKcal = Math.max(
+                ...displayList.flatMap((d) => [d.kcal_in, d.kcal_out]),
+                1
               )
+              return displayList.map((d) => {
+                const inH = Math.max(Math.min((d.kcal_in / maxKcal) * 150, 150), 4)
+                const outH = Math.max(Math.min((d.kcal_out / maxKcal) * 150, 150), 4)
+                return (
+                  <div key={d.date} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
+                      <div
+                        title={`${d.date} - In: ${d.kcal_in} kcal`}
+                        style={{
+                          width: '18px',
+                          height: `${inH}px`,
+                          background: 'linear-gradient(180deg, var(--accent-secondary), #4338ca)',
+                          borderRadius: '3px 3px 0 0',
+                        }}
+                      />
+                      <div
+                        title={`${d.date} - Out: ${d.kcal_out} kcal`}
+                        style={{
+                          width: '18px',
+                          height: `${outH}px`,
+                          background: 'linear-gradient(180deg, var(--accent-primary), #047857)',
+                          borderRadius: '3px 3px 0 0',
+                        }}
+                      />
+                    </div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{d.date.slice(5)}</span>
+                  </div>
+                )
+              })
             })()}
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.5rem' }}>
-            {/* TODO: ask Member A for per-day breakdown in /analytics/me */}
-            Totals across {analytics?.total_days_logged ?? 0} logged days
+            Daily balance (last 7 days) | Total In: {analytics?.total_kcal_in ?? 0} kcal | Total Out: {analytics?.total_kcal_out ?? 0} kcal
           </p>
         </div>
       </div>

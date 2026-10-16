@@ -10,8 +10,8 @@ from dashboard.loaders import (
     load_food_macros,
 )
 
-# Why: Defaulting to local backend URL with an environment override allows flexible deployment across dev and docker.
-DEFAULT_API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000/api/v1")
+# Why: Defaulting to 127.0.0.1 avoids IPv6 resolution latency on Windows.
+DEFAULT_API_BASE = os.getenv("API_BASE_URL", "http://127.0.0.1:8000/api/v1")
 
 
 def get_offline_population_analytics() -> dict[str, Any]:
@@ -57,9 +57,8 @@ def fetch_population_analytics(
     base_url: str = DEFAULT_API_BASE,
 ) -> tuple[dict[str, Any], bool]:
     """Fetch population analytics from the backend API, falling back to aggregate files on error."""
-    # Why: A short timeout prevents Streamlit UI from hanging when the backend server is stopped.
     try:
-        resp = requests.get(f"{base_url}/analytics/population", timeout=2.0)
+        resp = requests.get(f"{base_url}/analytics/population", timeout=15.0)
         if resp.status_code == 200:
             data = resp.json()
             data["source"] = "live_api"
@@ -71,20 +70,34 @@ def fetch_population_analytics(
 
 
 def fetch_user_analytics(
-    token: str, base_url: str = DEFAULT_API_BASE
+    token_or_user_id: str | None = None,
+    base_url: str = DEFAULT_API_BASE,
+    token: str | None = None,
 ) -> tuple[dict[str, Any], bool]:
-    """Fetch personal analytics for an authenticated user, falling back to sample baseline on error."""
-    if token:
+    """Fetch personal analytics for an authenticated user (JWT token or user_id).
+
+    If token_or_user_id contains '.' (JWT format), queries /analytics/me with Bearer token.
+    Otherwise queries /analytics/user/{user_id}.
+    Falls back gracefully to offline sample benchmark data.
+    """
+    effective_id = token_or_user_id if token_or_user_id is not None else token
+    if effective_id:
+        val = effective_id.strip()
         try:
-            headers = {"Authorization": f"Bearer {token}"}
-            resp = requests.get(
-                f"{base_url}/analytics/me", headers=headers, timeout=2.0
-            )
+            if "." in val:
+                headers = {"Authorization": f"Bearer {val}"}
+                resp = requests.get(
+                    f"{base_url}/analytics/me", headers=headers, timeout=15.0
+                )
+            else:
+                resp = requests.get(f"{base_url}/analytics/user/{val}", timeout=15.0)
             if resp.status_code == 200:
                 data = resp.json()
                 data["source"] = "live_api"
                 return data, True
-        except (requests.RequestException, ValueError):
-            pass
+            else:
+                print(f"fetch_user_analytics HTTP {resp.status_code}: {resp.text}")
+        except Exception as e:
+            print(f"fetch_user_analytics Exception: {e}")
 
     return get_offline_user_analytics(), False

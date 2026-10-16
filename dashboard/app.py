@@ -40,7 +40,11 @@ view_mode = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("API Connection")
-api_token = st.sidebar.text_input("User Token (for /analytics/me)", type="password")
+api_token = st.sidebar.text_input(
+    "User Token or User ID (for personal view)", type="password"
+)
+if st.sidebar.button("🔄 Refresh Live Data"):
+    st.rerun()
 
 
 if view_mode == "Population Analytics":
@@ -175,7 +179,7 @@ if view_mode == "Population Analytics":
 
 else:
     # Per-user personal analytics view
-    user_data, is_live = fetch_user_analytics(token=api_token)
+    user_data, is_live = fetch_user_analytics(token_or_user_id=api_token)
     if is_live:
         st.sidebar.success("🟢 Authenticated Live Session")
     else:

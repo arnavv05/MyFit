@@ -182,6 +182,7 @@ class ExerciseRecItem(BaseModel):
 class FoodRecItem(BaseModel):
     food_id: str
     name: str
+    diet_type: Literal["veg", "nonveg"] = "veg"
     grams: float
     kcal: float
     macros: FoodMacros
@@ -244,6 +245,34 @@ class WeightAnomaly(BaseModel):
     reason: str
 
 
+class DailyCaloriePoint(BaseModel):
+    date: str
+    kcal_in: float = 0.0
+    kcal_out: float = 0.0
+    net_kcal: float = 0.0
+
+
+class DailySummary(BaseModel):
+    date: str
+    weight_kg: float | None = None
+    kcal_in: float = 0.0
+    kcal_out: float = 0.0
+    net_kcal: float = 0.0
+    workouts_count: int = 0
+    meals_count: int = 0
+    sleep_hours: float | None = None
+    water_ml: float | None = None
+
+
+class WeeklySummary(BaseModel):
+    total_kcal_in: float = 0.0
+    total_kcal_out: float = 0.0
+    avg_daily_kcal_in: float = 0.0
+    avg_daily_kcal_out: float = 0.0
+    workouts_completed: int = 0
+    days_logged: int = 0
+
+
 class UserAnalyticsResponse(BaseModel):
     user_id: str
     total_days_logged: int
@@ -253,8 +282,15 @@ class UserAnalyticsResponse(BaseModel):
     avg_sleep_hours: float | None
     avg_water_ml: float | None
     weight_history: list[WeightPoint]
-    # Streak: consecutive days logged ending today
+    # Streak: consecutive days logged
     current_streak_days: int = 0
+    best_streak_days: int = 0
+    streak: int = 0  # alias for backward compatibility
+    # Time-series and summary rollups
+    calories_in_vs_out: list[DailyCaloriePoint] = Field(default_factory=list)
+    today_summary: DailySummary | None = None
+    weekly_summary: WeeklySummary | None = None
+    goal_progress_pct: float = 0.0
     # ML-powered fields (from recommender package)
     goal_forecast: ForecastResult | None = None
     weight_anomalies: list[WeightAnomaly] = Field(default_factory=list)

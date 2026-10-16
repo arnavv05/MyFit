@@ -369,3 +369,51 @@ async def test_update_profile_and_goal(test_app, auth_headers):
         data = resp.json()
         assert data["profile"]["age"] == 28
         assert data["goal"]["target_weight_kg"] == 72.0
+
+
+@pytest.mark.asyncio
+async def test_full_auth_lifecycle(test_app):
+    """Complete auth lifecycle test: register, duplicate check, wrong password check, valid login, get me."""
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as ac:
+        email = "lifecycle@example.com"
+        pw = "CorrectPass123"
+
+        # 1. Register
+        r_reg = await ac.post(
+            "/api/v1/auth/register", json={"email": email, "password": pw}
+        )
+        assert r_reg.status_code == 201
+        assert r_reg.json()["email"] == email
+
+        # 2. Duplicate registration -> 409
+        r_dup = await ac.post(
+            "/api/v1/auth/register", json={"email": email, "password": pw}
+        )
+        assert r_dup.status_code == 409
+
+        # 3. Wrong password -> 401
+        r_wrong = await ac.post(
+            "/api/v1/auth/login", json={"email": email, "password": "WrongPassword!"}
+        )
+        assert r_wrong.status_code == 401
+
+        # 4. Correct login -> 200 + access_token
+        r_login = await ac.post(
+            "/api/v1/auth/login", json={"email": email, "password": pw}
+        )
+        assert r_login.status_code == 200
+        token = r_login.json()["access_token"]
+        assert token
+
+        # 5. Access /users/me with token -> 200 (test actual dependency without mock_test_user override)
+        test_app.dependency_overrides.pop(get_current_user, None)
+        try:
+            r_me = await ac.get(
+                "/api/v1/users/me", headers={"Authorization": f"Bearer {token}"}
+            )
+            assert r_me.status_code == 200
+            assert r_me.json()["email"] == email
+        finally:
+            test_app.dependency_overrides[get_current_user] = lambda: mock_test_user

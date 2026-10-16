@@ -50,8 +50,14 @@ def _check_rate_limit(key: str, max_requests: int, window_seconds: int) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up – connecting to MongoDB…")
-    await connect_to_mongo()
-    logger.info("MongoDB connected.")
+    try:
+        await connect_to_mongo()
+        logger.info("MongoDB connected.")
+    except Exception as exc:
+        logger.warning(
+            "Initial MongoDB connection failed: %s. Atlas IP Access may be needed; requests will retry.",
+            exc,
+        )
     yield
     logger.info("Shutting down – closing MongoDB connection…")
     await close_mongo_connection()
@@ -90,7 +96,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 @app.middleware("http")
 async def auth_rate_limit_middleware(request: Request, call_next):
-    if request.url.path in (
+    if request.method != "OPTIONS" and request.url.path in (
         f"{settings.API_V1_PREFIX}/auth/login",
         f"{settings.API_V1_PREFIX}/auth/register",
     ):

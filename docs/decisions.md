@@ -143,3 +143,10 @@ Base API Prefix: `/api/v1`
 - To prevent dependency pinning collisions between FastAPI/Starlette and Streamlit, the Streamlit dashboard runs in an isolated `dashboard/.venv`.
 - Both environments cleanly communicate over HTTP to `/api/v1` with a seamless fallback to local EDA aggregates (`data/eda_aggregates/`) when the API is offline.
 
+### 3.5 Additive Schema Extensions & Personalization (Fix Iteration October 2026)
+- **Status**: **RATIFIED & IMPLEMENTED**
+- **Food `diet_type` Tagging**: Added `diet_type: "veg" | "nonveg"` to `FoodRecItem`, catalog responses, and seed data. Strict hard-filter applied at both ML engine level and backend API router level.
+- **Recommender Context Passing**: `get_exercise_recs` and `get_food_recs` accept optional `user_dict` and `date` for seamless personalization for newly registered MongoDB users without CSV synchronization delay. Incorporates dynamic cluster prediction, joint safety exclusion, and interaction rating adaptation ($\le 2$ excluded, $\ge 4$ boosted).
+- **Time-Series Analytics**: `UserAnalyticsResponse` includes additive fields `calories_in_vs_out` (daily per-day In vs Out balance), `today_summary`, `weekly_summary`, `current_streak_days`, `best_streak_days`, and `goal_progress_pct`.
+- **Direct User Telemetry Route**: Added `GET /analytics/user/{user_id}` allowing admin and dashboard telemetry resolution via user ID or JWT Bearer token.
+

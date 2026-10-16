@@ -1,13 +1,16 @@
 """Exercise Recommender module.
 
-Upgraded Day 2 Hybrid Recommender combining:
+Upgraded Personal & Varied Recommender combining:
 1. Item-based Collaborative Filtering (Cosine similarity on item-user vectors).
 2. Matrix Factorization via TruncatedSVD (latent feature factorization on ratings).
 3. Cluster popularity prior (from K-Means user persona clusters).
-4. Cold-start fallback (< 5 interactions) to cluster-popular items.
+4. User identity & cold-start handling (via MongoDB or user context dict).
 5. Strict joint/injury filter (contraindicated exercises are completely excluded).
-6. Compendium MET-based duration & calorie allocation.
-7. Explainable, human-readable reason strings.
+6. Multi-muscle group variety (prevents repetitive single-muscle workouts).
+7. Seeded daily rotation (deterministic variety across different days).
+8. Live user feedback adaptation (ratings 1-2 excluded, ratings 4-5 boosted).
+9. Compendium MET-based duration & calorie allocation using user's actual weight.
+10. Explainable, human-readable reason strings.
 
 Output matches exact API contract expected by Member A's backend:
 [
@@ -21,6 +24,8 @@ Output matches exact API contract expected by Member A's backend:
 ]
 """
 
+import hashlib
+import re
 from typing import Any
 
 import numpy as np
@@ -32,7 +37,6 @@ from recommender.calories import DEFAULT_TARGET_BURN_KCAL, allocate_exercise_dur
 from recommender.clustering import predict_cluster
 from recommender.config import RANDOM_SEED
 from recommender.data_access import BaseDataAccess, get_data_access
-from recommender.popularity import get_popular_exercises
 
 
 class HybridExerciseRecommender:
@@ -64,7 +68,6 @@ class HybridExerciseRecommender:
         self._user_item_matrix = pivot
 
         # 1. Item-Based Cosine Similarity: cols are items
-        # To compare items, we compute cosine similarity between columns
         item_vectors = pivot.T  # rows are items, cols are users
         if len(item_vectors) > 1:
             sim_array = cosine_similarity(item_vectors)
@@ -77,7 +80,6 @@ class HybridExerciseRecommender:
         # 2. Latent Matrix Factorization via TruncatedSVD
         n_components = min(12, max(2, min(pivot.shape) - 1))
         if pivot.shape[0] >= 5 and pivot.shape[1] >= 5:
-            # Center user ratings around user means for better reconstruction
             user_means = pivot.replace(0.0, np.nan).mean(axis=1).fillna(3.0)
             centered_pivot = pivot.sub(user_means, axis=0).fillna(0.0)
 
@@ -96,7 +98,7 @@ class HybridExerciseRecommender:
         return self
 
     def _compute_item_cf_score(
-        self, user_id: str, candidate_id: str, user_rated: dict[str, float]
+        self, candidate_id: str, user_rated: dict[str, float]
     ) -> tuple[float, str | None]:
         """Compute item-based CF predicted score and identify most similar rated anchor item."""
         if (
@@ -130,17 +132,29 @@ class HybridExerciseRecommender:
         user_id: str,
         n: int = 4,
         target_burn_kcal: float = DEFAULT_TARGET_BURN_KCAL,
+        user_dict: dict[str, Any] | None = None,
+        date: str | None = None,
     ) -> list[dict[str, Any]]:
-        """Generate top-N hybrid exercise recommendations for a user."""
+        """Generate personalized top-N exercise recommendations for a user.
+
+        Features:
+        - Resolves user profile from user_dict or Mongo/CSV.
+        - Strictly filters out injury-flagged exercises.
+        - Integrates live user feedback: excludes items rated 1-2, boosts items rated 4-5.
+        - Provides daily variety using deterministic date-seeded rotation.
+        - Promotes muscle group and category diversity.
+        - Scales durations and calorie burns to the user's actual body weight.
+        """
         if not self._fitted:
             self.fit()
 
-        user = self.da.get_user(user_id)
+        user = user_dict or self.da.get_user(user_id)
         if not user:
             weight_kg = 70.0
             injuries: list[str] = []
-            cluster_id = None
+            _cluster_id = None
             cluster_label = "General Fitness"
+            activity_level = "moderately_active"
         else:
             profile = user.get("profile", {})
             weight_kg = float(profile.get("weight_kg", 70.0))
@@ -149,23 +163,22 @@ class HybridExerciseRecommender:
                 for i in profile.get("injuries", [])
                 if str(i).strip()
             ]
+            activity_level = str(profile.get("activity_level", "moderately_active"))
             logs = self.da.get_user_logs(user_id, limit=14)
             cluster_info = predict_cluster(user, logs)
-            cluster_id = cluster_info["cluster_id"]
-            cluster_label = cluster_info["cluster_label"]
+            _cluster_id = cluster_info.get("cluster_id")
+            cluster_label = cluster_info.get("cluster_label", "General Fitness")
 
         if self.exercises_df.empty:
             return []
 
-        # Injury Safety Filter
+        # 1. Injury Safety Filter (Hard Exclusion)
         def parse_injury_flags(val) -> list[str]:
             if isinstance(val, (list, tuple, set)):
                 return [str(f).strip().lower() for f in val if str(f).strip()]
             if not val:
                 return []
             val_str = str(val).strip("[]'\" ")
-            import re
-
             tokens = re.split(r"[,;|]", val_str)
             return [
                 t.strip().strip("'\"").lower()
@@ -181,76 +194,64 @@ class HybridExerciseRecommender:
         if safe_df.empty:
             safe_df = self.exercises_df.copy()
 
-        # Check user history
-        user_history = pd.DataFrame()
-        if not self.interactions_df.empty:
-            user_history = self.interactions_df[
+        # 2. Fresh User Feedback & Ratings
+        # Fetch fresh user interactions from storage
+        fresh_user_interactions = self.da.get_user_interactions(
+            user_id, item_type="exercise"
+        )
+        user_ratings_map: dict[str, float] = {}
+        if not fresh_user_interactions.empty:
+            user_ratings_map = dict(
+                zip(
+                    fresh_user_interactions["item_id"],
+                    fresh_user_interactions["rating"],
+                )
+            )
+        elif not self.interactions_df.empty:
+            cached_history = self.interactions_df[
                 self.interactions_df["user_id"] == user_id
             ]
-
-        # COLD START: Fewer than 5 ratings -> return cluster-popular safe exercises
-        if (
-            len(user_history) < 5
-            or self._user_item_matrix is None
-            or user_id not in self._user_item_matrix.index
-        ):
-            popular = get_popular_exercises(
-                data_access=self.da,
-                user_injuries=injuries,
-                n=n,
-            )
-            candidate_list = []
-            for item in popular:
-                reason = (
-                    f"Top-rated by members in your '{cluster_label}' group and safe for your joints"
-                    if cluster_id is not None
-                    else "Popular core workout safe for your activity level"
+            if not cached_history.empty:
+                user_ratings_map = dict(
+                    zip(cached_history["item_id"], cached_history["rating"])
                 )
-                candidate_list.append(
-                    {
-                        "exercise_id": str(item["_id"]),
-                        "name": str(item["name"]),
-                        "met_value": float(item["met_value"]),
-                        "reason": reason,
-                    }
-                )
-            allocated = allocate_exercise_durations(
-                candidate_list, target_burn_kcal, weight_kg
-            )
-            return [
-                {
-                    "exercise_id": a["exercise_id"],
-                    "name": a["name"],
-                    "duration_min": int(a["duration_min"]),
-                    "est_kcal": float(a["est_kcal"]),
-                    "reason": a["reason"],
-                }
-                for a in allocated
-            ]
 
-        # WARM USER: Hybrid CF + SVD + Cluster Popularity
-        user_ratings_map = dict(zip(user_history["item_id"], user_history["rating"]))
-        already_rated = set(user_ratings_map.keys())
+        # Disqualify items user rated poorly (1 or 2 stars)
+        disqualified_items = {
+            item_id for item_id, rating in user_ratings_map.items() if rating <= 2
+        }
 
-        # Precompute safe candidate ids
-        candidate_rows = safe_df[~safe_df["_id"].isin(already_rated)]
+        # Filter safe candidates
+        candidate_rows = safe_df[~safe_df["_id"].isin(disqualified_items)].copy()
         if candidate_rows.empty:
-            candidate_rows = safe_df
+            candidate_rows = safe_df.copy()
 
-        scored_candidates = []
+        # 3. Deterministic Day-Based Randomness
+        seed_str = f"{user_id}:{date or 'today'}"
+        seed_val = int(hashlib.md5(seed_str.encode("utf-8")).hexdigest(), 16) % (10**8)
+        rng = np.random.default_rng(seed_val)
+
+        # 4. Multi-Factor Scoring
         name_map = dict(zip(self.exercises_df["_id"], self.exercises_df["name"]))
+        scored_candidates: list[dict[str, Any]] = []
 
         for _, row in candidate_rows.iterrows():
             ex_id = str(row["_id"])
             ex_name = str(row["name"])
             met_val = float(row["met_value"])
+            muscle_group = str(row.get("muscle_group", "Full Body"))
+            category = str(row.get("category", "Strength"))
+            difficulty = str(row.get("difficulty", "beginner")).lower()
 
-            # 1. Item-CF Score
+            # Base MET prior (normalized 1.0 to 5.0)
+            pop_score = float(met_val) / 2.0 + 1.5
+
+            # Item-CF Score
             item_cf_score, anchor_id = self._compute_item_cf_score(
-                user_id, ex_id, user_ratings_map
+                ex_id, user_ratings_map
             )
 
-            # 2. SVD Score
+            # SVD Score
             svd_score = 3.0
             if (
                 self._svd_preds_matrix is not None
@@ -259,43 +260,97 @@ class HybridExerciseRecommender:
             ):
                 svd_score = float(self._svd_preds_matrix.loc[user_id, ex_id])
 
-            # 3. Base Popularity Prior (normalized 1.0 to 5.0)
-            pop_score = float(row.get("met_value", 4.0)) / 2.0 + 1.5
+            # Rating affinity boost for highly-rated items or items similar to 4/5 star favorites
+            affinity_boost = 0.0
+            if ex_id in user_ratings_map and user_ratings_map[ex_id] >= 4:
+                affinity_boost += 0.8
+            elif anchor_id and user_ratings_map.get(anchor_id, 0) >= 4:
+                affinity_boost += 0.5
 
-            # Blended Hybrid Score: 45% Item-CF, 35% SVD, 20% Prior
+            # Difficulty alignment boost
+            diff_boost = 0.0
+            if activity_level in ["very_active", "extra_active"]:
+                if difficulty in ["intermediate", "advanced"]:
+                    diff_boost = 0.4
+            elif activity_level in ["sedentary", "lightly_active"]:
+                if difficulty == "beginner":
+                    diff_boost = 0.4
+
+            # Daily rotational perturbation (deterministic per user + date)
+            # Produces a controlled variance so rank changes day-to-day
+            rotation_jitter = rng.uniform(-0.35, 0.35)
+
+            # Composite hybrid score
             hybrid_score = (
-                (0.45 * item_cf_score) + (0.35 * svd_score) + (0.20 * pop_score)
+                (0.40 * item_cf_score)
+                + (0.30 * svd_score)
+                + (0.30 * pop_score)
+                + affinity_boost
+                + diff_boost
+                + rotation_jitter
             )
 
             # Explainable reason formulation
-            if anchor_id and anchor_id in name_map:
-                anchor_name = name_map[anchor_id]
-                reason = f"Recommended because you loved {anchor_name} and users like you rated this highly"
-            elif cluster_label:
-                reason = f"Aligned with your {cluster_label} training goals and favored by similar members"
+            if injuries and any(
+                inj in parse_injury_flags(row.get("injury_flags", ""))
+                for inj in injuries
+            ):
+                reason = f"Joint-friendly exercise safe for your {', '.join(injuries)} recovery"
+            elif anchor_id and user_ratings_map.get(anchor_id, 0) >= 4:
+                anchor_name = name_map.get(anchor_id, "an exercise")
+                reason = f"Personalized routine similar to {anchor_name} that you rated highly"
+            elif ex_id in user_ratings_map and user_ratings_map[ex_id] >= 4:
+                reason = f"One of your top-rated favorite exercises for {muscle_group.lower()} conditioning"
+            elif cluster_label and cluster_label != "General Fitness":
+                reason = f"Favored by members in your '{cluster_label}' persona for {category.lower()} training"
             else:
-                reason = "Highly rated by fitness members with a similar profile"
+                reason = f"Popular {category.lower()} workout targeting {muscle_group.lower()} safe for your level"
 
             scored_candidates.append(
                 {
                     "exercise_id": ex_id,
                     "name": ex_name,
+                    "muscle_group": muscle_group,
+                    "category": category,
                     "met_value": met_val,
                     "hybrid_score": hybrid_score,
                     "reason": reason,
                 }
             )
 
-        # Sort by hybrid score
+        # Sort by score descending
         scored_candidates.sort(key=lambda x: x["hybrid_score"], reverse=True)
-        top_n_candidates = scored_candidates[:n]
 
-        # MET duration and calorie allocation
+        # 5. Muscle Group & Category Diversity Selection
+        # Greedily pick top candidates ensuring different muscle groups are represented
+        selected_candidates: list[dict[str, Any]] = []
+        seen_muscle_groups: set[str] = set()
+
+        for cand in scored_candidates:
+            if len(selected_candidates) >= n:
+                break
+            mg = cand["muscle_group"]
+            # Allow at most 1 exercise per muscle group until all available groups are exhausted
+            if mg not in seen_muscle_groups or len(seen_muscle_groups) >= len(
+                {c["muscle_group"] for c in scored_candidates}
+            ):
+                selected_candidates.append(cand)
+                seen_muscle_groups.add(mg)
+
+        # Backfill if diverse selection didn't reach n
+        if len(selected_candidates) < n:
+            for cand in scored_candidates:
+                if len(selected_candidates) >= n:
+                    break
+                if cand not in selected_candidates:
+                    selected_candidates.append(cand)
+
+        # 6. Allocation of Durations & Calorie Burn using user's actual weight
         allocated = allocate_exercise_durations(
-            top_n_candidates, target_burn_kcal, weight_kg
+            selected_candidates, target_burn_kcal, weight_kg
         )
 
-        final_recs = [
+        return [
             {
                 "exercise_id": str(item["exercise_id"]),
                 "name": str(item["name"]),
@@ -305,8 +360,6 @@ class HybridExerciseRecommender:
             }
             for item in allocated
         ]
-
-        return final_recs
 
 
 # Cached engine instance
@@ -318,8 +371,10 @@ def recommend_exercises_for_user(
     n: int = 4,
     data_access: BaseDataAccess | None = None,
     target_burn_kcal: float = DEFAULT_TARGET_BURN_KCAL,
+    user_dict: dict[str, Any] | None = None,
+    date: str | None = None,
 ) -> list[dict[str, Any]]:
-    """Public function routing to HybridExerciseRecommender."""
+    """Public function routing to HybridExerciseRecommender with user context and date support."""
     global _exercise_engine
     da = data_access or get_data_access()
     if _exercise_engine is None or _exercise_engine.da is not da:
@@ -327,5 +382,9 @@ def recommend_exercises_for_user(
         _exercise_engine.fit()
 
     return _exercise_engine.recommend(
-        user_id=user_id, n=n, target_burn_kcal=target_burn_kcal
+        user_id=user_id,
+        n=n,
+        target_burn_kcal=target_burn_kcal,
+        user_dict=user_dict,
+        date=date,
     )
