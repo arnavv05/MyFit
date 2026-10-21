@@ -122,12 +122,13 @@ cd ..
 
 Open three separate terminal windows:
 
-### Terminal 1: Backend API (Port 8000)
+### Terminal 1: Backend API & Web Portal (Port 8000)
 ```powershell
 .\.venv\Scripts\python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-- API Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- Alternative Docs: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- **Interactive Web Portal & Login**: [http://127.0.0.1:8000/login](http://127.0.0.1:8000/login) (Immediate standalone web app with profile editor, 5-star rating, Save All day completion, and recommendation preview)
+- **Interactive API Swagger UI**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **Alternative ReDoc**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ### Terminal 2: React Frontend (Port 5173)
 ```powershell

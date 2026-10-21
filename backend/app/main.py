@@ -3,9 +3,10 @@ import time
 from collections import defaultdict
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from backend.app.core.config import settings
 from backend.app.db.mongodb import connect_to_mongo, close_mongo_connection
 from backend.app.api.v1.auth import router as auth_router
@@ -151,3 +152,22 @@ app.include_router(catalog_router, prefix=settings.API_V1_PREFIX)
 async def health_check():
     """Simple liveness endpoint – returns 200 when server is up."""
     return {"status": "ok", "service": settings.APP_NAME, "version": "1.0.0"}
+
+
+# ---------------------------------------------------------------------------
+# Web Portal & Login UI
+# ---------------------------------------------------------------------------
+_STATIC_LOGIN_HTML = Path(__file__).resolve().parent / "static" / "login.html"
+
+
+@app.get("/login", include_in_schema=False)
+@app.get("/", include_in_schema=False)
+async def serve_login_page():
+    """Serves the standalone interactive login & dashboard portal."""
+    if _STATIC_LOGIN_HTML.exists():
+        return FileResponse(_STATIC_LOGIN_HTML, media_type="text/html")
+    return JSONResponse(
+        status_code=404,
+        content={"detail": "Login portal page not found"},
+    )
+

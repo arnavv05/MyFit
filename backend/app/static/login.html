@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Myfitness - Personalized AI Fitness & Nutrition Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(22, 28, 45, 0.88);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-glow: rgba(16, 185, 129, 0.25);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --input-bg: rgba(15, 23, 42, 0.8);
+      --error: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0f19 80%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand-icon {
+      font-size: 2.75rem;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 4px 14px var(--primary-glow));
+    }
+
+    .brand h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s ease;
+      margin-bottom: 1.5rem;
+    }
+
+    .tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.65rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #0b0f19;
+      box-shadow: 0 2px 10px var(--primary-glow);
+    }
+
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin-bottom: 1.15rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .quick-fill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+    }
+
+    .quick-fill span {
+      font-size: 0.85rem;
+      color: #a7f3d0;
+    }
+
+    .btn-quick {
+      background: var(--primary);
+      color: #064e3b;
+      border: none;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-quick:hover {
+      background: #34d399;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--primary);
+      color: #064e3b;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-hover);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .alert {
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+    }
+
+    /* Profile / Dashboard View */
+    .profile-panel {
+      display: none;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .user-header-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .user-meta h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+
+    .user-meta p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .header-btns {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .pill-veg {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .pill-nonveg {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+
+    /* Targeted Day Banner */
+    .day-banner {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .day-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #a7f3d0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Collapsible Editors */
+    .collapsible-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .recs-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .rec-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .rec-card.rated-done {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .rec-card h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .rec-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .rec-badge {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .badge-food {
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+    }
+
+    /* Star Rating */
+    .star-rating-box {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stars-group {
+      display: flex;
+      gap: 3px;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .star {
+      color: #475569;
+      transition: color 0.15s, transform 0.1s;
+      user-select: none;
+    }
+
+    .star:hover {
+      transform: scale(1.2);
+    }
+
+    .star.active {
+      color: #fbbf24;
+      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.4));
+    }
+
+    .rating-feedback {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* SAVE ALL STICKY COMMIT BAR */
+    .commit-bar {
+      background: rgba(22, 28, 45, 0.95);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .commit-summary {
+      font-size: 0.95rem;
+      color: #e2e8f0;
+    }
+
+    .commit-summary strong {
+      color: #34d399;
+    }
+
+    .btn-save-all {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #042f24;
+      border: none;
+      padding: 0.85rem 1.6rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px var(--primary-glow);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-save-all:hover {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-save-all:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .nav-btn {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn-primary {
+      background: var(--primary);
+      color: #064e3b;
+    }
+
+    .nav-btn-primary:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+
+    .nav-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--card-border);
+    }
+
+    .nav-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .toggle-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH FORM CONTAINER -->
+  <div class="container" id="authContainer">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <h1>Myfitness</h1>
+      <p>Personalized AI Fitness & Nutrition Portal</p>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" id="tabLoginBtn" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="tabRegisterBtn" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <div id="alertBox" class="alert"></div>
+
+      <!-- Quick Demo Account Fill -->
+      <div class="quick-fill" id="demoBanner">
+        <span>Demo user ready: <strong>student@myfitness.edu</strong></span>
+        <button type="button" class="btn-quick" onclick="fillDemo()">Auto-Fill</button>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" required placeholder="name@college.edu" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <!-- Registration Profile Details (Visible when Create Account is active) -->
+        <div id="regProfileFields" style="display: none; border-top: 1px solid var(--card-border); padding-top: 1rem; margin-top: 1rem;">
+          <p style="font-size: 0.85rem; color: #34d399; font-weight: 700; margin-bottom: 0.85rem;">
+            🧬 Personalized Biometrics & Goal Settings
+          </p>
+
+          <div class="form-row">
+            <div>
+              <label for="regAge">Age (Years)</label>
+              <input type="number" id="regAge" value="22" min="10" max="100">
+            </div>
+            <div>
+              <label for="regGender">Gender</label>
+              <select id="regGender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="regHeight">Height (cm)</label>
+              <input type="number" id="regHeight" value="175" step="0.5">
+            </div>
+            <div>
+              <label for="regWeight">Current Weight (kg)</label>
+              <input type="number" id="regWeight" value="72.0" step="0.5">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="regDiet">Diet Preference</label>
+              <select id="regDiet">
+                <option value="veg">Vegetarian 🥗</option>
+                <option value="nonveg">Non-Vegetarian 🍗</option>
+              </select>
+            </div>
+            <div>
+              <label for="regActivity">Activity Level</label>
+              <select id="regActivity">
+                <option value="sedentary">Sedentary (office work)</option>
+                <option value="lightly_active">Lightly Active (1-3 days)</option>
+                <option value="moderately_active" selected>Moderately Active (3-5 days)</option>
+                <option value="very_active">Very Active (6-7 days)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="regTargetWeight">Goal Weight (kg)</label>
+              <input type="number" id="regTargetWeight" value="68.0" step="0.5">
+            </div>
+            <div>
+              <label for="regTargetDate">Target Date</label>
+              <input type="date" id="regTargetDate" value="2026-12-31">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regInjuries">Injuries / Limitations (comma-separated)</label>
+            <input type="text" id="regInjuries" placeholder="e.g. knee, shoulder (or leave empty)">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- AUTHENTICATED PROFILE & PORTAL CONTAINER -->
+  <div class="profile-panel" id="profilePanel">
+    <div class="brand" style="margin-bottom: 1.5rem;">
+      <div class="brand-icon">💪</div>
+      <h1 id="welcomeUser">Welcome Back</h1>
+      <p id="userEmailTag">Authenticated Session</p>
+    </div>
+
+    <!-- MAIN METRICS CARD -->
+    <div class="card">
+      <div class="user-header-bar">
+        <div class="user-meta">
+          <h2>Personal Fitness Analytics & Goals</h2>
+          <p id="profileSubtitle">Live Telemetry Synchronized with MongoDB Atlas</p>
+        </div>
+        <div class="header-btns">
+          <button onclick="toggleEditProfile()" class="btn-quick" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">⚙️ Edit Profile & Goals</button>
+          <button onclick="handleLogout()" class="btn-quick" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">Sign Out</button>
+        </div>
+      </div>
+
+      <!-- Live Analytics KPI Grid -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Workouts Done</div>
+          <div class="stat-value" id="statWorkouts" style="color: #34d399;">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Kcal Burned (Out)</div>
+          <div class="stat-value" id="statKcalOut" style="color: #60a5fa;">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Kcal Taken (In)</div>
+          <div class="stat-value" id="statKcalIn" style="color: #fb923c;">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Active Streak</div>
+          <div class="stat-value" id="statStreak" style="color: #f59e0b;">🔥 0d</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Current Weight</div>
+          <div class="stat-value" id="statWeight">-- kg</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Target Weight</div>
+          <div class="stat-value" id="statGoal">-- kg</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Diet Mode</div>
+          <div class="stat-value" id="statDiet"><span class="pill-badge pill-veg">Veg</span></div>
+        </div>
+      </div>
+
+      <!-- EDIT PROFILE COLLAPSIBLE CARD -->
+      <div class="collapsible-card" id="editProfileSection" style="display: none;">
+        <div class="section-title">
+          <span>⚙️ Update Biometrics, Dietary Filter & Target Timeline</span>
+          <button onclick="toggleEditProfile()" class="toggle-link">Close</button>
+        </div>
+        <div id="profileAlert" class="alert"></div>
+
+        <form id="profileUpdateForm" onsubmit="handleUpdateProfile(event)">
+          <div class="form-row">
+            <div>
+              <label for="editAge">Age</label>
+              <input type="number" id="editAge" required min="10" max="100">
+            </div>
+            <div>
+              <label for="editGender">Gender</label>
+              <select id="editGender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="editHeight">Height (cm)</label>
+              <input type="number" id="editHeight" required step="0.5">
+            </div>
+            <div>
+              <label for="editWeight">Current Weight (kg)</label>
+              <input type="number" id="editWeight" required step="0.5">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="editDiet">Dietary Preference</label>
+              <select id="editDiet">
+                <option value="veg">Vegetarian 🥗 (100% Meat-Free)</option>
+                <option value="nonveg">Non-Vegetarian 🍗</option>
+              </select>
+            </div>
+            <div>
+              <label for="editActivity">Activity Level</label>
+              <select id="editActivity">
+                <option value="sedentary">Sedentary (BMR x 1.2)</option>
+                <option value="lightly_active">Lightly Active (BMR x 1.375)</option>
+                <option value="moderately_active">Moderately Active (BMR x 1.55)</option>
+                <option value="very_active">Very Active (BMR x 1.725)</option>
+                <option value="extra_active">Extra Active (BMR x 1.9)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="editTargetWeight">Target Weight (kg)</label>
+              <input type="number" id="editTargetWeight" required step="0.5">
+            </div>
+            <div>
+              <label for="editTargetDate">Target Date (YYYY-MM-DD)</label>
+              <input type="date" id="editTargetDate" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editInjuries">Injuries / Limitations (comma-separated, e.g. knee, shoulder)</label>
+            <input type="text" id="editInjuries" placeholder="e.g. knee, wrist (or none)">
+          </div>
+
+          <button type="submit" class="btn-submit" id="saveProfileBtn">
+            💾 Save Profile & Recalculate AI Recommendations
+          </button>
+        </form>
+      </div>
+
+      <!-- TARGETED ACTIVE DAY BANNER -->
+      <div class="day-banner">
+        <div class="day-title">
+          <span>📅 Active Target Plan:</span>
+          <span id="activeDayLabel" style="color: #fff; font-weight: 800;">Day 1 (2026-10-21)</span>
+        </div>
+        <div style="font-size: 0.85rem; color: #94a3b8;">
+          Rate workouts & meals below, then click <strong>"Save All"</strong> to log progress and advance to next targeted day.
+        </div>
+      </div>
+
+      <!-- WORKOUT RECOMMENDATIONS SECTION -->
+      <div class="section-title">
+        <span>🏃 Personalized Workouts (Collaborative + Safety Filter)</span>
+        <span style="font-size: 0.8rem; color: #94a3b8;">Rate completed exercises (1–5★)</span>
+      </div>
+      <div class="recs-container" id="exerciseRecs">
+        <div class="rec-card">Loading personalized workouts...</div>
+      </div>
+
+      <!-- NUTRITION RECOMMENDATIONS SECTION -->
+      <div class="section-title">
+        <span>🥗 Personalized Nutrition (Kcal Replenishment)</span>
+        <span style="font-size: 0.8rem; color: #94a3b8;">Rate eaten meals (1–5★)</span>
+      </div>
+      <div class="recs-container" id="foodRecs">
+        <div class="rec-card">Loading personalized meals...</div>
+      </div>
+
+      <!-- SAVE ALL COMMIT ACTION BAR -->
+      <div id="saveAllBanner" class="alert alert-success" style="display: none; margin-bottom: 1rem;"></div>
+
+      <div class="commit-bar">
+        <div class="commit-summary">
+          <div><span id="commitSelectedText">Ready to log: <strong>0 workouts</strong> & <strong>0 meals</strong></span></div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+            Clicking Save All commits your daily logs to Personal Analytics and loads next day's new recommendations.
+          </div>
+        </div>
+        <button id="btnSaveAll" class="btn-save-all" onclick="handleSaveAll()">
+          💾 Save All & Complete Day (Next Target Day ➔)
+        </button>
+      </div>
+
+      <div class="section-title" style="margin-top: 2rem;">🚀 Monorepo Quick Navigators</div>
+      <div class="nav-actions">
+        <a href="http://localhost:8501" target="_blank" class="nav-btn nav-btn-primary">
+          📊 Open Streamlit Dashboard
+        </a>
+        <a href="http://localhost:8000/docs" target="_blank" class="nav-btn nav-btn-secondary">
+          📜 Open API Swagger UI
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Myfitness Monorepo • Connected Live to MongoDB Atlas Cluster
+  </footer>
+
+  <script>
+    let currentMode = 'login';
+    const API_BASE = window.location.origin;
+    let currentUserData = null;
+
+    // Track active recommendations and pending ratings for "Save All"
+    let currentExercises = [];
+    let currentFoods = [];
+    let pendingExerciseRatings = {}; // exercise_id -> { exercise, rating }
+    let pendingFoodRatings = {};     // food_id -> { food, rating }
+    let currentSimDate = null;
+    let dayCounter = 1;
+
+    function formatError(detail) {
+      if (!detail) return 'An unexpected error occurred.';
+      if (typeof detail === 'string') return detail;
+      if (Array.isArray(detail)) {
+        return detail.map(item => {
+          const field = Array.isArray(item.loc) ? item.loc.slice(1).join(' -> ') : '';
+          const msg = item.msg || item.message || JSON.stringify(item);
+          return field ? `${field}: ${msg}` : msg;
+        }).join(' | ');
+      }
+      if (typeof detail === 'object') {
+        return detail.msg || detail.message || JSON.stringify(detail);
+      }
+      return String(detail);
+    }
+
+    function switchTab(mode) {
+      currentMode = mode;
+      document.getElementById('tabLoginBtn').classList.toggle('active', mode === 'login');
+      document.getElementById('tabRegisterBtn').classList.toggle('active', mode === 'register');
+      document.getElementById('submitBtn').innerText = mode === 'login' ? 'Sign In' : 'Create Account & Profile';
+      document.getElementById('demoBanner').style.display = mode === 'login' ? 'flex' : 'none';
+      document.getElementById('regProfileFields').style.display = mode === 'register' ? 'block' : 'none';
+      hideAlert('alertBox');
+    }
+
+    function fillDemo() {
+      switchTab('login');
+      document.getElementById('email').value = 'student@myfitness.edu';
+      document.getElementById('password').value = 'password123';
+      hideAlert('alertBox');
+    }
+
+    function showAlert(boxId, msg, isError = true) {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      box.innerText = formatError(msg);
+      box.className = 'alert ' + (isError ? 'alert-error' : 'alert-success');
+      box.style.display = 'block';
+    }
+
+    function hideAlert(boxId) {
+      const box = document.getElementById(boxId);
+      if (box) box.style.display = 'none';
+    }
+
+    function toggleEditProfile() {
+      const sec = document.getElementById('editProfileSection');
+      const isHidden = sec.style.display === 'none';
+      sec.style.display = isHidden ? 'block' : 'none';
+      if (isHidden && currentUserData) {
+        populateEditForm(currentUserData);
+      }
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      hideAlert('alertBox');
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (!email || !password) {
+        showAlert('alertBox', 'Please provide both email and password.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = currentMode === 'login' ? 'Signing in...' : 'Creating Account...';
+
+      try {
+        if (currentMode === 'register') {
+          const age = parseInt(document.getElementById('regAge').value) || 22;
+          const gender = document.getElementById('regGender').value || 'male';
+          const height = parseFloat(document.getElementById('regHeight').value) || 175.0;
+          const weight = parseFloat(document.getElementById('regWeight').value) || 72.0;
+          const diet = document.getElementById('regDiet').value || 'veg';
+          const activity = document.getElementById('regActivity').value || 'moderately_active';
+          const targetWeight = parseFloat(document.getElementById('regTargetWeight').value) || 68.0;
+          const targetDate = document.getElementById('regTargetDate').value || '2026-12-31';
+          const injuriesRaw = document.getElementById('regInjuries').value.trim();
+          const injuries = injuriesRaw ? injuriesRaw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+
+          const regRes = await fetch(`${API_BASE}/api/v1/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email,
+              password,
+              profile: {
+                age,
+                gender,
+                height_cm: height,
+                weight_kg: weight,
+                activity_level: activity,
+                diet_type: diet,
+                injuries: injuries
+              },
+              goal: {
+                target_weight_kg: targetWeight,
+                target_date: targetDate
+              }
+            })
+          });
+
+          if (!regRes.ok) {
+            const errData = await regRes.json();
+            throw new Error(formatError(errData.detail || 'Registration failed'));
+          }
+        }
+
+        // Login to acquire JWT token
+        const loginRes = await fetch(`${API_BASE}/api/v1/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const loginData = await loginRes.json();
+        if (!loginRes.ok) {
+          throw new Error(formatError(loginData.detail || 'Login failed. Please verify credentials.'));
+        }
+
+        localStorage.setItem('myfitness_token', loginData.access_token);
+        localStorage.setItem('myfitness_email', email);
+        showDashboard(loginData.access_token, email);
+
+      } catch (err) {
+        showAlert('alertBox', formatError(err.message || err), true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = currentMode === 'login' ? 'Sign In' : 'Create Account & Profile';
+      }
+    }
+
+    function populateEditForm(user) {
+      const p = user.profile || {};
+      const g = user.goal || {};
+      document.getElementById('editAge').value = p.age || 22;
+      document.getElementById('editGender').value = p.gender || 'male';
+      document.getElementById('editHeight').value = p.height_cm || 175;
+      document.getElementById('editWeight').value = p.weight_kg || 70;
+      document.getElementById('editDiet').value = p.diet_type || 'veg';
+      document.getElementById('editActivity').value = p.activity_level || 'moderately_active';
+      document.getElementById('editInjuries').value = (p.injuries || []).join(', ');
+      document.getElementById('editTargetWeight').value = g.target_weight_kg || 65;
+      document.getElementById('editTargetDate').value = g.target_date || '2026-12-31';
+    }
+
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+      hideAlert('profileAlert');
+      const token = localStorage.getItem('myfitness_token');
+      if (!token) return;
+
+      const saveBtn = document.getElementById('saveProfileBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'Recalculating BMR & AI Plans...';
+
+      const age = parseInt(document.getElementById('editAge').value);
+      const gender = document.getElementById('editGender').value;
+      const height = parseFloat(document.getElementById('editHeight').value);
+      const weight = parseFloat(document.getElementById('editWeight').value);
+      const diet = document.getElementById('editDiet').value;
+      const activity = document.getElementById('editActivity').value;
+      const targetWeight = parseFloat(document.getElementById('editTargetWeight').value);
+      const targetDate = document.getElementById('editTargetDate').value;
+      const injuriesRaw = document.getElementById('editInjuries').value.trim();
+      const injuries = injuriesRaw ? injuriesRaw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/users/me`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            profile: {
+              age,
+              gender,
+              height_cm: height,
+              weight_kg: weight,
+              activity_level: activity,
+              diet_type: diet,
+              injuries: injuries
+            },
+            goal: {
+              target_weight_kg: targetWeight,
+              target_date: targetDate
+            }
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(formatError(errData.detail || 'Failed to update profile'));
+        }
+
+        showAlert('profileAlert', '✅ Profile updated! BMR, TDEE and AI recommendations recalculated.', false);
+        await loadUserData(token);
+        await loadRecommendations(token, currentSimDate);
+        setTimeout(() => {
+          document.getElementById('editProfileSection').style.display = 'none';
+          hideAlert('profileAlert');
+        }, 1200);
+
+      } catch (err) {
+        showAlert('profileAlert', formatError(err.message || err), true);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = '💾 Save Profile & Recalculate AI Recommendations';
+      }
+    }
+
+    // Star Rating click staged for "Save All"
+    function stageRating(itemType, itemId, rating, starEl) {
+      const container = starEl.parentElement;
+      const stars = container.querySelectorAll('.star');
+      stars.forEach((s, idx) => {
+        s.classList.toggle('active', idx < rating);
+      });
+
+      const card = starEl.closest('.rec-card');
+      if (card) card.classList.add('rated-done');
+
+      const fb = document.getElementById(`fb-${itemType}-${itemId}`);
+      if (fb) {
+        fb.innerText = `⭐ Rated ${rating}/5 (Pending Save All)`;
+        fb.style.color = '#34d399';
+      }
+
+      if (itemType === 'exercise') {
+        const itemObj = currentExercises.find(ex => ex.exercise_id === itemId);
+        if (itemObj) {
+          pendingExerciseRatings[itemId] = { ...itemObj, rating: rating };
+        }
+      } else {
+        const itemObj = currentFoods.find(fd => fd.food_id === itemId);
+        if (itemObj) {
+          pendingFoodRatings[itemId] = { ...itemObj, rating: rating };
+        }
+      }
+
+      updateCommitBar();
+    }
+
+    function updateCommitBar() {
+      const exCount = Object.keys(pendingExerciseRatings).length;
+      const fdCount = Object.keys(pendingFoodRatings).length;
+
+      let totalBurn = 0;
+      Object.values(pendingExerciseRatings).forEach(e => {
+        totalBurn += (e.est_kcal || 0);
+      });
+
+      let totalKcalIn = 0;
+      Object.values(pendingFoodRatings).forEach(f => {
+        totalKcalIn += (f.kcal || 0);
+      });
+
+      document.getElementById('commitSelectedText').innerHTML = `
+        Ready to log: <strong>${exCount} workouts</strong> (~${Math.round(totalBurn)} kcal burned) & 
+        <strong>${fdCount} meals</strong> (~${Math.round(totalKcalIn)} kcal taken)
+      `;
+    }
+
+    // SAVE ALL CLICK HANDLER
+    async function handleSaveAll() {
+      const token = localStorage.getItem('myfitness_token');
+      if (!token) return;
+
+      const saveBtn = document.getElementById('btnSaveAll');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'Saving to Personal Analytics & Loading Next Day...';
+      hideAlert('saveAllBanner');
+
+      const ratedExercises = Object.values(pendingExerciseRatings);
+      const ratedFoods = Object.values(pendingFoodRatings);
+
+      // Default: if user hasn't rated an item yet, include the recommendations so day is complete
+      const workoutsToLog = (ratedExercises.length > 0 ? ratedExercises : currentExercises).map(e => ({
+        exercise_id: e.exercise_id,
+        duration_min: e.duration_min || 20.0,
+        kcal_burned: e.est_kcal || 150.0,
+        rating: e.rating || 5
+      }));
+
+      const mealsToLog = (ratedFoods.length > 0 ? ratedFoods : currentFoods).map(f => ({
+        food_id: f.food_id,
+        grams: f.grams || 150.0,
+        kcal: f.kcal || 350.0
+      }));
+
+      try {
+        // 1. Post daily log with completed workouts & meals to update Personal Analytics
+        const logRes = await fetch(`${API_BASE}/api/v1/logs`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            date: currentSimDate,
+            weight_kg: currentUserData?.profile?.weight_kg || 70.0,
+            sleep_hours: 8.0,
+            water_ml: 2500,
+            workouts: workoutsToLog,
+            meals: mealsToLog
+          })
+        });
+
+        if (!logRes.ok) {
+          const err = await logRes.json();
+          throw new Error(formatError(err.detail || 'Failed to save daily log'));
+        }
+
+        // 2. Submit feedback ratings to train collaborative filtering model
+        for (const ex of ratedExercises) {
+          await fetch(`${API_BASE}/api/v1/feedback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              item_type: 'exercise',
+              item_id: ex.exercise_id,
+              rating: ex.rating
+            })
+          }).catch(() => {});
+        }
+
+        for (const fd of ratedFoods) {
+          await fetch(`${API_BASE}/api/v1/feedback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              item_type: 'food',
+              item_id: fd.food_id,
+              rating: fd.rating
+            })
+          }).catch(() => {});
+        }
+
+        // 3. Advance to the NEXT targeted day
+        const curDateObj = new Date(currentSimDate);
+        curDateObj.setDate(curDateObj.getDate() + 1);
+        currentSimDate = curDateObj.toISOString().slice(0, 10);
+        dayCounter += 1;
+        localStorage.setItem('myfitness_sim_date', currentSimDate);
+        localStorage.setItem('myfitness_sim_day_counter', dayCounter.toString());
+
+        // 4. Update targeted day UI
+        document.getElementById('activeDayLabel').innerText = `Day ${dayCounter} (${currentSimDate})`;
+
+        // 5. Fetch fresh new recommendations for the next targeted day
+        pendingExerciseRatings = {};
+        pendingFoodRatings = {};
+        await loadRecommendations(token, currentSimDate);
+        await loadAnalytics(token);
+
+        // 6. Show success message
+        showAlert('saveAllBanner', `🎉 Day completed! Logged ${workoutsToLog.length} workouts & ${mealsToLog.length} meals into Personal Fitness Analytics. New recommendations generated for Day ${dayCounter} (${currentSimDate})!`, false);
+        window.scrollTo({ top: 350, behavior: 'smooth' });
+
+      } catch (err) {
+        showAlert('saveAllBanner', formatError(err.message || err), true);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = '💾 Save All & Complete Day (Next Target Day ➔)';
+      }
+    }
+
+    async function loadAnalytics(token) {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/analytics/me`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const analytics = await res.json();
+          document.getElementById('statWorkouts').innerText = `💪 ${analytics.total_workouts_completed || 0}`;
+          document.getElementById('statKcalOut').innerText = `🔥 ${Math.round(analytics.total_kcal_out || 0)}`;
+          document.getElementById('statKcalIn').innerText = `🥗 ${Math.round(analytics.total_kcal_in || 0)}`;
+          document.getElementById('statStreak').innerText = `🔥 ${analytics.streak || analytics.total_days_logged || 0}d`;
+        }
+      } catch (e) {
+        console.error('Failed to load live analytics:', e);
+      }
+    }
+
+    async function loadUserData(token) {
+      const meRes = await fetch(`${API_BASE}/api/v1/users/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (meRes.ok) {
+        currentUserData = await meRes.json();
+        const p = currentUserData.profile || {};
+        const g = currentUserData.goal || {};
+
+        document.getElementById('statWeight').innerText = `${p.weight_kg || 70} kg`;
+        document.getElementById('statGoal').innerText = `${g.target_weight_kg || 65} kg`;
+
+        const isVeg = p.diet_type === 'veg';
+        document.getElementById('statDiet').innerHTML = isVeg
+          ? '<span class="pill-badge pill-veg">Vegetarian 🥗</span>'
+          : '<span class="pill-badge pill-nonveg">Non-Veg 🍗</span>';
+
+        document.getElementById('profileSubtitle').innerText = `Target: ${g.target_weight_kg || 65} kg by ${g.target_date || 'end of year'} • ${p.activity_level || 'moderately_active'}`;
+      }
+      await loadAnalytics(token);
+    }
+
+    async function loadRecommendations(token, dateStr) {
+      const exContainer = document.getElementById('exerciseRecs');
+      const fdContainer = document.getElementById('foodRecs');
+      exContainer.innerHTML = '<div class="rec-card">Loading fresh workout recommendations for targeted day...</div>';
+      fdContainer.innerHTML = '<div class="rec-card">Loading fresh meal recommendations for targeted day...</div>';
+
+      const dateQuery = dateStr ? `&date=${dateStr}` : '';
+
+      // Fetch Workouts
+      const exRes = await fetch(`${API_BASE}/api/v1/recommend/exercises?limit=3${dateQuery}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (exRes.ok) {
+        currentExercises = await exRes.json();
+        if (!currentExercises || currentExercises.length === 0) {
+          exContainer.innerHTML = '<div class="rec-card">No exercise recs found.</div>';
+        } else {
+          exContainer.innerHTML = currentExercises.map(ex => `
+            <div class="rec-card" id="card-ex-${ex.exercise_id}">
+              <div>
+                <h4>${ex.name}</h4>
+                <div class="rec-meta">⏱️ ${ex.duration_min} min • 🔥 ~${Math.round(ex.est_kcal)} kcal burn</div>
+                <div class="rec-badge">${ex.reason || 'Personalized for you'}</div>
+              </div>
+              <div class="star-rating-box">
+                <div class="stars-group" title="Rate this workout to log and personalize">
+                  <span class="star" onclick="stageRating('exercise', '${ex.exercise_id}', 1, this)">★</span>
+                  <span class="star" onclick="stageRating('exercise', '${ex.exercise_id}', 2, this)">★</span>
+                  <span class="star" onclick="stageRating('exercise', '${ex.exercise_id}', 3, this)">★</span>
+                  <span class="star" onclick="stageRating('exercise', '${ex.exercise_id}', 4, this)">★</span>
+                  <span class="star" onclick="stageRating('exercise', '${ex.exercise_id}', 5, this)">★</span>
+                </div>
+                <span class="rating-feedback" id="fb-exercise-${ex.exercise_id}">Rate (1-5★)</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Fetch Foods
+      const fdRes = await fetch(`${API_BASE}/api/v1/recommend/foods?limit=3${dateQuery}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (fdRes.ok) {
+        currentFoods = await fdRes.json();
+        if (!currentFoods || currentFoods.length === 0) {
+          fdContainer.innerHTML = '<div class="rec-card">No food recs found.</div>';
+        } else {
+          fdContainer.innerHTML = currentFoods.map(fd => `
+            <div class="rec-card" id="card-fd-${fd.food_id}">
+              <div>
+                <h4>${fd.name}</h4>
+                <div class="rec-meta">🍽️ ${fd.grams}g portion • ⚡ ${Math.round(fd.kcal)} kcal</div>
+                <div class="rec-badge badge-food">${fd.diet_type === 'veg' ? '🌱 Vegetarian' : '🍗 Non-Veg'} • ${fd.reason || 'Caloric match'}</div>
+                <div style="font-size: 0.78rem; color: #94a3b8;">
+                  P: ${fd.macros?.protein_g || 0}g | C: ${fd.macros?.carbs_g || 0}g | F: ${fd.macros?.fat_g || 0}g
+                </div>
+              </div>
+              <div class="star-rating-box">
+                <div class="stars-group" title="Rate this meal to log and personalize">
+                  <span class="star" onclick="stageRating('food', '${fd.food_id}', 1, this)">★</span>
+                  <span class="star" onclick="stageRating('food', '${fd.food_id}', 2, this)">★</span>
+                  <span class="star" onclick="stageRating('food', '${fd.food_id}', 3, this)">★</span>
+                  <span class="star" onclick="stageRating('food', '${fd.food_id}', 4, this)">★</span>
+                  <span class="star" onclick="stageRating('food', '${fd.food_id}', 5, this)">★</span>
+                </div>
+                <span class="rating-feedback" id="fb-food-${fd.food_id}">Rate (1-5★)</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      updateCommitBar();
+    }
+
+    async function showDashboard(token, email) {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('profilePanel').style.display = 'block';
+      document.getElementById('userEmailTag').innerText = email;
+
+      // Initialize simulation date
+      currentSimDate = localStorage.getItem('myfitness_sim_date') || new Date().toISOString().slice(0, 10);
+      dayCounter = parseInt(localStorage.getItem('myfitness_sim_day_counter') || '1');
+      document.getElementById('activeDayLabel').innerText = `Day ${dayCounter} (${currentSimDate})`;
+
+      await loadUserData(token);
+      await loadRecommendations(token, currentSimDate);
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('myfitness_token');
+      localStorage.removeItem('myfitness_email');
+      localStorage.removeItem('myfitness_sim_date');
+      localStorage.removeItem('myfitness_sim_day_counter');
+      document.getElementById('profilePanel').style.display = 'none';
+      document.getElementById('authContainer').style.display = 'block';
+      hideAlert('alertBox');
+    }
+
+    // Auto-login if token exists
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedToken = localStorage.getItem('myfitness_token');
+      const savedEmail = localStorage.getItem('myfitness_email');
+      if (savedToken && savedEmail) {
+        showDashboard(savedToken, savedEmail);
+      }
+    });
+  </script>
+</body>
+</html>

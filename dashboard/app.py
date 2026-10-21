@@ -39,10 +39,41 @@ view_mode = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("API Connection")
-api_token = st.sidebar.text_input(
-    "User Token or User ID (for personal view)", type="password"
-)
+st.sidebar.subheader("Account Login")
+
+if "auth_token" not in st.session_state:
+    st.session_state["auth_token"] = ""
+
+with st.sidebar.expander("🔑 Quick Login / Sign In", expanded=not bool(st.session_state["auth_token"])):
+    login_email = st.text_input("Email", value="student@myfitness.edu", key="dash_login_email")
+    login_pwd = st.text_input("Password", value="password123", type="password", key="dash_login_pwd")
+    if st.button("Sign In & Load Profile", use_container_width=True):
+        try:
+            import requests
+            res = requests.post(
+                "http://127.0.0.1:8000/api/v1/auth/login",
+                json={"email": login_email, "password": login_pwd},
+                timeout=5.0,
+            )
+            if res.status_code == 200:
+                st.session_state["auth_token"] = res.json().get("access_token", "")
+                st.sidebar.success("✅ Logged in successfully!")
+                st.rerun()
+            else:
+                st.sidebar.error("Login failed. Check credentials.")
+        except Exception as exc:
+            st.sidebar.error(f"Cannot reach API: {exc}")
+
+if st.session_state["auth_token"]:
+    api_token = st.session_state["auth_token"]
+    if st.sidebar.button("Log Out"):
+        st.session_state["auth_token"] = ""
+        st.rerun()
+else:
+    api_token = st.sidebar.text_input(
+        "Or Paste Bearer Token / User ID", type="password"
+    )
+
 if st.sidebar.button("🔄 Refresh Live Data"):
     st.rerun()
 
