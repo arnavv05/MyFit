@@ -22,10 +22,21 @@ db_manager = MongoDBManager()
 
 async def connect_to_mongo() -> None:
     """Initialize MongoDB client and connect to database."""
-    kwargs = {"tlsCAFile": _CA_FILE} if _CA_FILE else {}
+    import asyncio
+    import logging
+
+    kwargs = {"serverSelectionTimeoutMS": 4000}
+    if _CA_FILE:
+        kwargs["tlsCAFile"] = _CA_FILE
     db_manager.client = AsyncIOMotorClient(settings.MONGODB_URI, **kwargs)
     db_manager.db = db_manager.client[settings.MONGODB_DB_NAME]
-    await init_db_indexes(db_manager.db)
+    try:
+        await asyncio.wait_for(init_db_indexes(db_manager.db), timeout=3.0)
+    except Exception as e:
+        logging.getLogger(__name__).warning(
+            "Index initialization deferred (MongoDB not immediately reachable): %s", e
+        )
+
 
 
 async def close_mongo_connection() -> None:
