@@ -882,6 +882,23 @@
       return String(detail);
     }
 
+    async function extractError(res, defaultMsg) {
+      try {
+        const text = await res.text();
+        try {
+          const json = JSON.parse(text);
+          if (json && json.detail) {
+            return formatError(json.detail);
+          }
+          return text || defaultMsg;
+        } catch (_) {
+          return text || defaultMsg;
+        }
+      } catch (_) {
+        return defaultMsg;
+      }
+    }
+
     function switchTab(mode) {
       currentMode = mode;
       document.getElementById('tabLoginBtn').classList.toggle('active', mode === 'login');
@@ -972,8 +989,8 @@
           });
 
           if (!regRes.ok) {
-            const errData = await regRes.json();
-            throw new Error(formatError(errData.detail || 'Registration failed'));
+            const errMsg = await extractError(regRes, 'Registration failed');
+            throw new Error(errMsg);
           }
         }
 
@@ -984,10 +1001,12 @@
           body: JSON.stringify({ email, password })
         });
 
-        const loginData = await loginRes.json();
         if (!loginRes.ok) {
-          throw new Error(formatError(loginData.detail || 'Login failed. Please verify credentials.'));
+          const errMsg = await extractError(loginRes, 'Login failed. Please verify credentials.');
+          throw new Error(errMsg);
         }
+
+        const loginData = await loginRes.json();
 
         localStorage.setItem('myfitness_token', loginData.access_token);
         localStorage.setItem('myfitness_email', email);
@@ -1061,8 +1080,8 @@
         });
 
         if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(formatError(errData.detail || 'Failed to update profile'));
+          const errMsg = await extractError(res, 'Failed to update profile');
+          throw new Error(errMsg);
         }
 
         showAlert('profileAlert', '✅ Profile updated! BMR, TDEE and AI recommendations recalculated.', false);
@@ -1179,8 +1198,8 @@
         });
 
         if (!logRes.ok) {
-          const err = await logRes.json();
-          throw new Error(formatError(err.detail || 'Failed to save daily log'));
+          const errMsg = await extractError(logRes, 'Failed to save daily log');
+          throw new Error(errMsg);
         }
 
         // 2. Submit feedback ratings to train collaborative filtering model

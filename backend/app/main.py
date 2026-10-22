@@ -128,6 +128,35 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled server exception: %s", exc)
+    exc_str = str(exc)
+    exc_name = type(exc).__name__
+
+    if (
+        "SSL handshake failed" in exc_str
+        or "TLSV1_ALERT_INTERNAL_ERROR" in exc_str
+        or "ServerSelectionTimeoutError" in exc_name
+        or "AutoReconnect" in exc_name
+    ):
+        return JSONResponse(
+            status_code=503,
+            content={
+                "detail": (
+                    "Database connection failed: MongoDB Atlas SSL/TLS handshake rejected. "
+                    "Your current IP address is not whitelisted in MongoDB Atlas. "
+                    "Please log into MongoDB Atlas -> Network Access and add your current IP (or 0.0.0.0/0 to allow all)."
+                )
+            },
+        )
+
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal Server Error: {exc_str or exc_name}"},
+    )
+
+
 # ---------------------------------------------------------------------------
 # Routers  (catalog registered once – removed duplicate from old main)
 # ---------------------------------------------------------------------------
